@@ -24,6 +24,10 @@ public final class HudRenderer {
     private static final Identifier FOOD_ICON = Identifier.withDefaultNamespace("hud/food_full");
     private static final Identifier HEART_HALF = Identifier.withDefaultNamespace("hud/heart/half");
 
+    private static final int ROW_H = 24; // place pour les "!!!" au-dessus de chaque icône
+    private static final float LOW_DURABILITY = 0.20f; // <= 20 % = dans le rouge
+    private static final int ALERT_COLOR = 0xFFFF2020;
+
     private static Entity target = null;
 
     private HudRenderer() {}
@@ -96,16 +100,16 @@ public final class HudRenderer {
     private static void renderArmor(GuiGraphicsExtractor g, Minecraft mc) {
         Player p = mc.player;
         int x = 4;
-        int y = mc.getWindow().getGuiScaledHeight() / 2 - 60;
+        int y = mc.getWindow().getGuiScaledHeight() / 2 - 70;
 
         EquipmentSlot[] slots = { EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET };
         for (EquipmentSlot s : slots) {
             ItemStack st = p.getItemBySlot(s);
-            if (!st.isEmpty()) { row(g, mc, st, x, y, false); y += 20; }
+            if (!st.isEmpty()) { row(g, mc, st, x, y, false); y += ROW_H; }
         }
 
         ItemStack off = p.getOffhandItem();
-        if (!off.isEmpty()) { row(g, mc, off, x, y, true); y += 20; }
+        if (!off.isEmpty()) { row(g, mc, off, x, y, true); y += ROW_H; }
 
         int food = countFood(p);
         g.blitSprite(RenderPipelines.GUI_TEXTURED, FOOD_ICON, x + 3, y + 4, 9, 9);
@@ -127,6 +131,11 @@ public final class HudRenderer {
 
     private static void row(GuiGraphicsExtractor g, Minecraft mc, ItemStack st, int x, int y, String text) {
         g.item(st, x, y);
+        int max = st.getMaxDamage();
+        if (max > 0 && (max - st.getDamageValue()) <= max * LOW_DURABILITY) {
+            int w = mc.font.width("!!!");
+            g.text(mc.font, "!!!", x + 8 - w / 2, y - 8, ALERT_COLOR, true);
+        }
         if (st.isBarVisible()) {
             int w = st.getBarWidth();
             int c = st.getBarColor() | 0xFF000000;

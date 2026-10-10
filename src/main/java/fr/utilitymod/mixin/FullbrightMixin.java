@@ -25,7 +25,10 @@ public abstract class FullbrightMixin<T> {
             cir.setReturnValue((T) (Object) Double.valueOf(15.0));
         } else if (ZoomState.active && mc.options.fov() == (Object) this
                 && cir.getReturnValue() instanceof Integer base) {
-            int zoomed = (int) Math.max(1, Math.round(base / ZoomState.factor));
+            ZoomState.baseFov = base;
+            double wanted = base / ZoomState.factor;
+            // L'option est un entier >= 1 : au-delà, ZoomFovMixin termine le zoom sur le FOV flottant.
+            int zoomed = wanted <= 1.0 ? 1 : (int) Math.max(1, Math.round(wanted));
             cir.setReturnValue((T) (Object) Integer.valueOf(zoomed));
         }
     }
