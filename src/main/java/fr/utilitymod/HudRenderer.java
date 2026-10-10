@@ -11,7 +11,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.EntityHitResult;
@@ -22,6 +21,7 @@ public final class HudRenderer {
     private static final double RANGE = 64.0;
     private static final Identifier HEART_CONTAINER = Identifier.withDefaultNamespace("hud/heart/container");
     private static final Identifier HEART_FULL = Identifier.withDefaultNamespace("hud/heart/full");
+    private static final Identifier FOOD_ICON = Identifier.withDefaultNamespace("hud/food_full");
     private static final Identifier HEART_HALF = Identifier.withDefaultNamespace("hud/heart/half");
 
     private static Entity target = null;
@@ -66,8 +66,9 @@ public final class HudRenderer {
         float hp = le.getHealth();
         float max = le.getMaxHealth();
 
-        if (max <= 20.0f) {
-            int n = (int) Math.ceil(max / 2.0f);
+        // <= 10 coeurs actuels : rangee de coeurs comme en survie. Sinon : un coeur + "vie/vie max".
+        if (hp <= 20.0f) {
+            int n = Math.min(10, (int) Math.ceil(max / 2.0f));
             int x0 = cx - (n * 8 + 1) / 2;
             for (int i = 0; i < n; i++) {
                 int x = x0 + i * 8;
@@ -107,7 +108,8 @@ public final class HudRenderer {
         if (!off.isEmpty()) { row(g, mc, off, x, y, true); y += 20; }
 
         int food = countFood(p);
-        row(g, mc, new ItemStack(Items.ENCHANTED_GOLDEN_APPLE), x, y, "x" + food);
+        g.blitSprite(RenderPipelines.GUI_TEXTURED, FOOD_ICON, x + 3, y + 4, 9, 9);
+        g.text(mc.font, "x" + food, x + 20, y + 4, 0xFFFFFFFF, true);
     }
 
     /** Ligne pour un objet : durabilité si possible, sinon total dans l'inventaire. */

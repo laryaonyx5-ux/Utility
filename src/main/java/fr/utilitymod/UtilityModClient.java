@@ -45,14 +45,17 @@ public class UtilityModClient implements ClientModInitializer {
                 (graphics, delta) -> HudRenderer.render(graphics));
     }
 
+    private static boolean dumped = false;
+
     private static void tick(Minecraft mc) {
+        if (!dumped) { dumped = true; Dump.run(); }
         while (kArmor.consumeClick())      { armorHud   = !armorHud;   msg(mc, "Armor HUD", armorHud); }
         while (kEntity.consumeClick())     { entityHud  = !entityHud;  msg(mc, "Entity HUD", entityHud); }
         while (kFullbright.consumeClick()) { fullbright = !fullbright; msg(mc, "Fullbright", fullbright); }
         while (kFog.consumeClick())        { noFog      = !noFog;      msg(mc, "Fog", noFog); }
 
         boolean was = ZoomState.active;
-        ZoomState.active = kZoom.isDown() && mc.mouseHandler.isMouseGrabbed() && mc.player != null;
+        ZoomState.active = kZoom.isDown() && mc.player != null;
         if (ZoomState.active && !was) ZoomState.factor = 3.0;
 
         HudRenderer.updateTarget(mc);
