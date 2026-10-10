@@ -1,0 +1,8 @@
+{
+  "key.category.utilitymod.main": "Utility HUD",
+  "key.utilitymod.armor_hud": "Armor HUD",
+  "key.utilitymod.entity_hud": "Entity HUD",
+  "key.utilitymod.fullbright": "Fullbright",
+  "key.utilitymod.zoom": "Zoom (maintenir + molette)",
+  "key.utilitymod.fog": "Fog"
+}
