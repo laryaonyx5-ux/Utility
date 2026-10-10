@@ -55,7 +55,7 @@ public class UtilityModClient implements ClientModInitializer {
         while (kFog.consumeClick())        { noFog      = !noFog;      msg(mc, "Fog", noFog); }
 
         boolean was = ZoomState.active;
-        ZoomState.active = kZoom.isDown() && mc.player != null;
+        ZoomState.active = kZoom.isDown() && mc.player != null && mc.gui.screen() == null;
         if (ZoomState.active && !was) ZoomState.factor = 3.0;
 
         HudRenderer.updateTarget(mc);
