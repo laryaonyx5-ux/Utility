@@ -24,7 +24,7 @@ public class UtilityModClient implements ClientModInitializer {
 
     private static KeyMapping key(String id, int keyCode) {
         return KeyMappingHelper.registerKeyMapping(new KeyMapping(
-                "key." + MOD_ID + "." + id, InputConstants.Type.KEYSYM, keyCode, category));
+                "key." + MOD_ID + "." + id, keyCode, category));
     }
 
     @Override
@@ -52,7 +52,7 @@ public class UtilityModClient implements ClientModInitializer {
         while (kFog.consumeClick())        { noFog      = !noFog;      msg(mc, "Fog", noFog); }
 
         boolean was = ZoomState.active;
-        ZoomState.active = kZoom.isDown() && mc.screen == null && mc.player != null;
+        ZoomState.active = kZoom.isDown() && mc.mouseHandler.isMouseGrabbed() && mc.player != null;
         if (ZoomState.active && !was) ZoomState.factor = 3.0;
 
         HudRenderer.updateTarget(mc);

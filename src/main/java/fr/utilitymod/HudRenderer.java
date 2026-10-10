@@ -50,7 +50,7 @@ public final class HudRenderer {
     // ---------- Rendu ----------
     public static void render(GuiGraphicsExtractor g) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc.options.hideGui) return;
+        if (mc.player == null) return;
         if (UtilityModClient.entityHud) renderEntity(g, mc);
         if (UtilityModClient.armorHud) renderArmor(g, mc);
     }
