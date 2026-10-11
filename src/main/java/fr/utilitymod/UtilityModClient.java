@@ -37,6 +37,8 @@ public class UtilityModClient implements ClientModInitializer {
         kZoom       = key("zoom",       InputConstants.KEY_C);
         kFog        = key("fog",        InputConstants.KEY_N);
 
+        Config.load();
+
         ClientTickEvents.END_CLIENT_TICK.register(UtilityModClient::tick);
 
         HudElementRegistry.attachElementBefore(
@@ -45,14 +47,11 @@ public class UtilityModClient implements ClientModInitializer {
                 (graphics, delta) -> HudRenderer.render(graphics));
     }
 
-    private static boolean dumped = false;
-
     private static void tick(Minecraft mc) {
-        if (!dumped) { dumped = true; Dump.run(); }
-        while (kArmor.consumeClick())      { armorHud   = !armorHud;   msg(mc, "Armor HUD", armorHud); }
-        while (kEntity.consumeClick())     { entityHud  = !entityHud;  msg(mc, "Entity HUD", entityHud); }
-        while (kFullbright.consumeClick()) { fullbright = !fullbright; msg(mc, "Fullbright", fullbright); }
-        while (kFog.consumeClick())        { noFog      = !noFog;      msg(mc, "Fog", noFog); }
+        while (kArmor.consumeClick())      { armorHud   = !armorHud;   msg(mc, "Armor HUD", armorHud); Config.save(); }
+        while (kEntity.consumeClick())     { entityHud  = !entityHud;  msg(mc, "Entity HUD", entityHud); Config.save(); }
+        while (kFullbright.consumeClick()) { fullbright = !fullbright; msg(mc, "Fullbright", fullbright); Config.save(); }
+        while (kFog.consumeClick())        { noFog      = !noFog;      msg(mc, "Fog", noFog); Config.save(); }
 
         boolean was = ZoomState.active;
         ZoomState.active = kZoom.isDown() && mc.player != null && mc.gui.screen() == null;
