@@ -1,21 +1,23 @@
 package fr.utilitymod.mixin;
 
 import fr.utilitymod.ZoomState;
-import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.Camera;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/** Zoom infini : divise le FOV flottant par la part de zoom que l'option entière ne peut pas faire. */
-@Mixin(GameRenderer.class)
+/**
+ * Zoom infini : on divise le FOV flottant calcule par la camera (Camera.calculateFov, verifie dans le dump 26.3).
+ * Contrairement a l'option FOV (entier >= 1), il n'y a aucune limite.
+ */
+@Mixin(Camera.class)
 public abstract class ZoomFovMixin {
-    @Inject(method = "getFov", at = @At("RETURN"), cancellable = true, require = 0)
+    @Inject(method = "calculateFov", at = @At("RETURN"), cancellable = true, require = 0)
     private void utilitymod$zoom(CallbackInfoReturnable<Float> cir) {
-        if (!ZoomState.active || ZoomState.fieldOk) return;
-        double extra = ZoomState.extra();
-        if (extra > 1.0) {
-            cir.setReturnValue(Math.max(1.0E-6f, (float) (cir.getReturnValue() / extra)));
-        }
+        ZoomState.cameraHooked = true;
+        if (!ZoomState.active) return;
+        float v = cir.getReturnValue();
+        cir.setReturnValue(Math.max(1.0E-6f, (float) (v / ZoomState.factor)));
     }
 }

@@ -1,20 +1,29 @@
 package fr.utilitymod;
 
+import java.lang.reflect.Field;
+
 public final class ZoomState {
     public static boolean active = false;
     public static double factor = 3.0;
-    /** FOV de base (option du jeu) mémorisé pendant le zoom, 0 si pas de zoom. */
-    public static double baseFov = 0.0;
-    /** true si le zoom de projection (champ "zoom" du GameRenderer) fonctionne : il remplace alors le zoom FOV supplémentaire. */
-    public static boolean fieldOk = false;
+    /** true des que le mixin de la camera a tourne au moins une fois : il gere alors tout le zoom. */
+    public static boolean cameraHooked = false;
     private ZoomState() {}
 
-    /**
-     * Part du zoom que l'option FOV (entier, minimum 1 degré) ne peut pas faire.
-     * Appliquée en plus sur le FOV flottant => zoom sans limite.
-     */
-    public static double extra() {
-        if (baseFov <= 0.0) return 1.0;
-        return Math.max(1.0, factor / baseFov);
+    private static Field sensField;
+    private static boolean sensFailed = false;
+
+    /** Vrai si "inst" est l'option de sensibilite de la souris (recherche par reflexion, sans risque de plantage). */
+    public static boolean isSensitivity(Object options, Object inst) {
+        if (sensFailed) return false;
+        try {
+            if (sensField == null) {
+                sensField = options.getClass().getDeclaredField("sensitivity");
+                sensField.setAccessible(true);
+            }
+            return sensField.get(options) == inst;
+        } catch (Throwable t) {
+            sensFailed = true;
+            return false;
+        }
     }
 }

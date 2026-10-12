@@ -56,9 +56,7 @@ public class UtilityModClient implements ClientModInitializer {
         boolean was = ZoomState.active;
         ZoomState.active = kZoom.isDown() && mc.player != null && mc.gui.screen() == null;
         if (ZoomState.active && !was) ZoomState.factor = 3.0;
-        if (!ZoomState.active) ZoomState.baseFov = 0.0;
 
-        ProjectionZoom.apply(mc);
         HudRenderer.updateTarget(mc);
     }
 
