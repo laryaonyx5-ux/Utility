@@ -112,8 +112,10 @@ public final class HudRenderer {
         if (!off.isEmpty()) { row(g, mc, off, x, y, true); y += ROW_H; }
 
         int food = countFood(p);
-        g.blitSprite(RenderPipelines.GUI_TEXTURED, FOOD_ICON, x + 3, y + 4, 9, 9);
-        g.text(mc.font, "x" + food, x + 20, y + 4, 0xFFFFFFFF, true);
+        if (food > 0) {
+            g.blitSprite(RenderPipelines.GUI_TEXTURED, FOOD_ICON, x + 3, y + 4, 9, 9);
+            g.text(mc.font, "x" + food, x + 20, y + 4, 0xFFFFFFFF, true);
+        }
     }
 
     /** Ligne pour un objet : durabilité si possible, sinon total dans l'inventaire. */

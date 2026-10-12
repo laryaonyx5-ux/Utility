@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class ZoomFovMixin {
     @Inject(method = "getFov", at = @At("RETURN"), cancellable = true, require = 0)
     private void utilitymod$zoom(CallbackInfoReturnable<Float> cir) {
-        if (!ZoomState.active) return;
+        if (!ZoomState.active || ZoomState.fieldOk) return;
         double extra = ZoomState.extra();
         if (extra > 1.0) {
             cir.setReturnValue(Math.max(1.0E-6f, (float) (cir.getReturnValue() / extra)));
