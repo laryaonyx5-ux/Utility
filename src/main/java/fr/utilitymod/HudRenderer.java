@@ -19,6 +19,10 @@ import net.minecraft.world.phys.Vec3;
 
 public final class HudRenderer {
     private static final double RANGE = 64.0;
+    private static final float JADE_MAX_HEALTH_FOR_ICONS = 40.0f; // au-dessus : un coeur + nombre
+    private static final int HEARTS_PER_ROW = 10;
+    private static final Identifier ABSORB_FULL = Identifier.withDefaultNamespace("hud/heart/absorbing_full");
+    private static final Identifier ABSORB_HALF = Identifier.withDefaultNamespace("hud/heart/absorbing_half");
     private static final Identifier HEART_CONTAINER = Identifier.withDefaultNamespace("hud/heart/container");
     private static final Identifier HEART_FULL = Identifier.withDefaultNamespace("hud/heart/full");
     private static final Identifier FOOD_ICON = Identifier.withDefaultNamespace("hud/food_full");
@@ -72,27 +76,47 @@ public final class HudRenderer {
 
         float hp = le.getHealth();
         float max = le.getMaxHealth();
+        float absorb = le.getAbsorptionAmount();
 
-        // <= 10 coeurs actuels : rangee de coeurs comme en survie. Sinon : un coeur + "vie/vie max".
-        if (hp <= 20.0f) {
-            int n = Math.min(10, (int) Math.ceil(max / 2.0f));
-            int x0 = cx - (n * 8 + 1) / 2;
-            for (int i = 0; i < n; i++) {
-                int x = x0 + i * 8;
-                g.blitSprite(RenderPipelines.GUI_TEXTURED, HEART_CONTAINER, x, y, 9, 9);
-                if (hp >= 2 * i + 2) {
-                    g.blitSprite(RenderPipelines.GUI_TEXTURED, HEART_FULL, x, y, 9, 9);
-                } else if (hp >= 2 * i + 1) {
-                    g.blitSprite(RenderPipelines.GUI_TEXTURED, HEART_HALF, x, y, 9, 9);
-                }
-            }
-        } else {
-            String s = fmt(hp / 2.0f) + "/" + fmt(max / 2.0f);
-            int w = 11 + mc.font.width(s);
+        if (max > JADE_MAX_HEALTH_FOR_ICONS) {
+            // Comme Jade : trop de vie -> un seul coeur + "vie / vie max".
+            String s = fmt(hp) + " / " + fmt(max);
+            String extra = absorb > 0 ? " +" + fmt(absorb) : "";
+            int w = 11 + mc.font.width(s) + mc.font.width(extra);
             int x = cx - w / 2;
             g.blitSprite(RenderPipelines.GUI_TEXTURED, HEART_CONTAINER, x, y, 9, 9);
             g.blitSprite(RenderPipelines.GUI_TEXTURED, HEART_FULL, x, y, 9, 9);
             g.text(mc.font, s, x + 11, y + 1, 0xFFFFFFFF, true);
+            if (!extra.isEmpty()) g.text(mc.font, extra, x + 11 + mc.font.width(s), y + 1, 0xFFFFE040, true);
+            return;
+        }
+
+        // Comme Jade : rangees de 10 coeurs, puis les coeurs d'absorption (jaunes) en dessous.
+        int n = (int) Math.ceil(max / 2.0f);
+        int a = absorb > 0 ? (int) Math.ceil(absorb / 2.0f) : 0;
+        int cols = Math.min(HEARTS_PER_ROW, Math.max(n, a));
+        int x0 = cx - (cols * 8 + 1) / 2;
+        int healthRows = (n + HEARTS_PER_ROW - 1) / HEARTS_PER_ROW;
+
+        for (int i = 0; i < n; i++) {
+            int x = x0 + (i % HEARTS_PER_ROW) * 8;
+            int yy = y + (i / HEARTS_PER_ROW) * 10;
+            g.blitSprite(RenderPipelines.GUI_TEXTURED, HEART_CONTAINER, x, yy, 9, 9);
+            if (hp >= 2 * i + 2) {
+                g.blitSprite(RenderPipelines.GUI_TEXTURED, HEART_FULL, x, yy, 9, 9);
+            } else if (hp >= 2 * i + 1) {
+                g.blitSprite(RenderPipelines.GUI_TEXTURED, HEART_HALF, x, yy, 9, 9);
+            }
+        }
+        for (int j = 0; j < a; j++) {
+            int x = x0 + (j % HEARTS_PER_ROW) * 8;
+            int yy = y + (healthRows + j / HEARTS_PER_ROW) * 10;
+            g.blitSprite(RenderPipelines.GUI_TEXTURED, HEART_CONTAINER, x, yy, 9, 9);
+            if (absorb >= 2 * j + 2) {
+                g.blitSprite(RenderPipelines.GUI_TEXTURED, ABSORB_FULL, x, yy, 9, 9);
+            } else if (absorb >= 2 * j + 1) {
+                g.blitSprite(RenderPipelines.GUI_TEXTURED, ABSORB_HALF, x, yy, 9, 9);
+            }
         }
     }
 
