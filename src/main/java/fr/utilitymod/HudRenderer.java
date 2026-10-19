@@ -1,5 +1,7 @@
 package fr.utilitymod;
 
+import java.lang.reflect.Field;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -33,6 +35,34 @@ public final class HudRenderer {
     private static final int ALERT_COLOR = 0xFFFF2020;
 
     private static Entity target = null;
+    private static String targetSource = "rayon";
+
+    // TEMPORAIRE : ligne de controle sous le nom (type d entite + vie brute). Mettre false pour la retirer.
+    private static final boolean DEBUG_LINE = true;
+
+    private static Field crossField, hitField;
+    private static boolean reflInit = false;
+
+    /** Cible calculee par Minecraft lui-meme (comme Jade). Lecture par reflexion : pas de plantage si le champ n existe pas. */
+    private static Entity vanillaTarget(Minecraft mc) {
+        try {
+            if (!reflInit) {
+                reflInit = true;
+                for (Field f : Minecraft.class.getDeclaredFields()) {
+                    if (f.getName().equals("hitResult") && HitResult.class.isAssignableFrom(f.getType())) {
+                        f.setAccessible(true); hitField = f;
+                    }
+                    if (f.getName().equals("crosshairPickEntity") && Entity.class.isAssignableFrom(f.getType())) {
+                        f.setAccessible(true); crossField = f;
+                    }
+                }
+            }
+            if (hitField != null && hitField.get(mc) instanceof EntityHitResult r) return r.getEntity();
+            if (crossField != null && crossField.get(mc) instanceof Entity e) return e;
+        } catch (Throwable ignored) {
+        }
+        return null;
+    }
 
     private HudRenderer() {}
 
@@ -40,6 +70,15 @@ public final class HudRenderer {
     public static void updateTarget(Minecraft mc) {
         target = null;
         if (!UtilityModClient.entityHud || mc.player == null || mc.level == null) return;
+        if (hitField != null || crossField != null || !reflInit) {
+            Entity v = vanillaTarget(mc);
+            if (hitField != null || crossField != null) {
+                targetSource = "vanilla";
+                target = (v instanceof LivingEntity) ? v : null;
+                return;
+            }
+        }
+        targetSource = "rayon";
         Player p = mc.player;
         Vec3 eye = p.getEyePosition(1.0f);
         Vec3 look = p.getViewVector(1.0f);
@@ -73,6 +112,11 @@ public final class HudRenderer {
         String name = le.getName().getString();
         g.text(mc.font, name, cx - mc.font.width(name) / 2, y, 0xFFFFFFFF, true);
         y += 12;
+        if (DEBUG_LINE) {
+            String dbg = le.getClass().getSimpleName() + " " + le.getHealth() + " / " + le.getMaxHealth() + " [" + targetSource + "]";
+            g.text(mc.font, dbg, cx - mc.font.width(dbg) / 2, y, 0xFFAAAAAA, true);
+            y += 10;
+        }
 
         float hp = le.getHealth();
         float max = le.getMaxHealth();
