@@ -42,7 +42,10 @@ public final class HudRenderer {
         Vec3 end = eye.add(look.scale(RANGE));
         AABB box = p.getBoundingBox().expandTowards(look.scale(RANGE)).inflate(1.0);
         EntityHitResult hit = ProjectileUtil.getEntityHitResult(
-                p, eye, end, box, e -> !e.isSpectator() && e.isPickable(), RANGE * RANGE);
+                p, eye, end, box,
+                e -> !e.isSpectator() && e.isPickable() && e instanceof LivingEntity
+                        && e != p.getVehicle() && e != p,
+                RANGE * RANGE);
         if (hit == null) return;
         HitResult block = mc.level.clip(new ClipContext(
                 eye, end, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, p));
