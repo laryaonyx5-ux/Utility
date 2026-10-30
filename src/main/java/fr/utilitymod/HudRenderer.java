@@ -112,19 +112,19 @@ public final class HudRenderer {
         String name = le.getName().getString();
         g.text(mc.font, name, cx - mc.font.width(name) / 2, y, 0xFFFFFFFF, true);
         y += 12;
-        if (DEBUG_LINE) {
-            String dbg = le.getClass().getSimpleName() + " " + le.getHealth() + " / " + le.getMaxHealth() + " [" + targetSource + "]";
-            g.text(mc.font, dbg, cx - mc.font.width(dbg) / 2, y, 0xFFAAAAAA, true);
-            y += 10;
-        }
 
         float hp = le.getHealth();
         float max = le.getMaxHealth();
         float absorb = le.getAbsorptionAmount();
 
+        // Valeur numérique toujours affichée juste au-dessus de la barre de coeurs.
+        String healthText = fmt(hp) + " / " + fmt(max) + " PV";
+        g.text(mc.font, healthText, cx - mc.font.width(healthText) / 2, y, 0xFFFFFFFF, true);
+        y += 11;
+
         if (max > JADE_MAX_HEALTH_FOR_ICONS) {
-            // Comme Jade : trop de vie -> un seul coeur + "vie / vie max".
-            String s = fmt(hp) + " / " + fmt(max);
+            // Pour les entités ayant beaucoup de vie, conserver l'affichage compact.
+            String s = fmt(hp) + " / " + fmt(max) + " PV";
             String extra = absorb > 0 ? " +" + fmt(absorb) : "";
             int w = 11 + mc.font.width(s) + mc.font.width(extra);
             int x = cx - w / 2;
