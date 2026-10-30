@@ -74,7 +74,9 @@ public final class HudRenderer {
             Entity v = vanillaTarget(mc);
             if (hitField != null || crossField != null) {
                 targetSource = "vanilla";
-                target = (v instanceof LivingEntity) ? v : null;
+                Player p = mc.player;
+                // La cible reste celle du viseur, mais uniquement jusqu'a 64 blocs inclus.
+                target = (v instanceof LivingEntity && p.distanceToSqr(v) <= RANGE * RANGE) ? v : null;
                 return;
             }
         }
