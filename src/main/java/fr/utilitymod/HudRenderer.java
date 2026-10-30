@@ -117,11 +117,6 @@ public final class HudRenderer {
         float max = le.getMaxHealth();
         float absorb = le.getAbsorptionAmount();
 
-        // Valeur numérique toujours affichée juste au-dessus de la barre de coeurs.
-        String healthText = fmt(hp) + " / " + fmt(max) + " PV";
-        g.text(mc.font, healthText, cx - mc.font.width(healthText) / 2, y, 0xFFFFFFFF, true);
-        y += 11;
-
         if (max > JADE_MAX_HEALTH_FOR_ICONS) {
             // Pour les entités ayant beaucoup de vie, conserver l'affichage compact.
             String s = fmt(hp) + " / " + fmt(max) + " PV";
@@ -135,7 +130,12 @@ public final class HudRenderer {
             return;
         }
 
-        // Comme Jade : rangees de 10 coeurs, puis les coeurs d'absorption (jaunes) en dessous.
+        // Valeur numérique juste au-dessus de la barre de coeurs.
+        String healthText = fmt(hp) + " / " + fmt(max) + " PV";
+        g.text(mc.font, healthText, cx - mc.font.width(healthText) / 2, y, 0xFFFFFFFF, true);
+        y += 11;
+
+        // Rangees de 10 coeurs, puis les coeurs d'absorption (jaunes) en dessous.
         int n = (int) Math.ceil(max / 2.0f);
         int a = absorb > 0 ? (int) Math.ceil(absorb / 2.0f) : 0;
         int cols = Math.min(HEARTS_PER_ROW, Math.max(n, a));
