@@ -80,7 +80,7 @@ public final class HudRenderer {
         float max = le.getMaxHealth();
         float absorb = le.getAbsorptionAmount();
 
-        if (max > NORMAL_HEARTS_MAX_HEALTH) {
+        if (hp > NORMAL_HEARTS_MAX_HEALTH) {
             // Au-dessus de 10 coeurs : PV au-dessus, puis un coeur rouge et le compte de coeurs.
             String healthText = fmt(hp) + " / " + fmt(max) + " PV";
             g.text(mc.font, healthText, cx - mc.font.width(healthText) / 2, y, 0xFFFFFFFF, true);
@@ -103,7 +103,7 @@ public final class HudRenderer {
         y += 11;
 
         // Rangees de 10 coeurs, puis les coeurs d'absorption (jaunes) en dessous.
-        int n = (int) Math.ceil(max / 2.0f);
+        int n = Math.max(1, (int) Math.ceil(hp / 2.0f));
         int a = absorb > 0 ? (int) Math.ceil(absorb / 2.0f) : 0;
         int cols = Math.min(HEARTS_PER_ROW, Math.max(n, a));
         int x0 = cx - (cols * 8 + 1) / 2;
