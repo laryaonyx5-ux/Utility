@@ -103,8 +103,9 @@ public final class HudRenderer {
         y += 11;
 
         // Rangees de 10 coeurs, puis les coeurs d'absorption (jaunes) en dessous.
-        // En mode barre classique, toujours afficher les 10 emplacements : les coeurs perdus restent noirs.
-        int n = HEARTS_PER_ROW;
+        // Afficher les emplacements correspondant à la vie maximale du mob, plafonnés à 10 en barre classique.
+        // Ainsi une poule garde 2 coeurs, une vache 5, un villageois 10 ; un golem passe à 10 emplacements sous 10 coeurs.
+        int n = Math.min(HEARTS_PER_ROW, Math.max(1, (int) Math.ceil(max / 2.0f)));
         int a = absorb > 0 ? (int) Math.ceil(absorb / 2.0f) : 0;
         int cols = Math.min(HEARTS_PER_ROW, Math.max(n, a));
         int x0 = cx - (cols * 8 + 1) / 2;
