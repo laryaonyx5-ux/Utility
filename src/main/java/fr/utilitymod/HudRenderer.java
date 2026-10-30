@@ -1,7 +1,5 @@
 package fr.utilitymod;
 
-import java.lang.reflect.Field;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -21,7 +19,7 @@ import net.minecraft.world.phys.Vec3;
 
 public final class HudRenderer {
     private static final double RANGE = 64.0;
-    private static final float JADE_MAX_HEALTH_FOR_ICONS = 40.0f; // au-dessus : un coeur + nombre
+    private static final float NORMAL_HEARTS_MAX_HEALTH = 20.0f; // 10 coeurs maximum
     private static final int HEARTS_PER_ROW = 10;
     private static final Identifier ABSORB_FULL = Identifier.withDefaultNamespace("hud/heart/absorbing_full");
     private static final Identifier ABSORB_HALF = Identifier.withDefaultNamespace("hud/heart/absorbing_half");
@@ -35,34 +33,6 @@ public final class HudRenderer {
     private static final int ALERT_COLOR = 0xFFFF2020;
 
     private static Entity target = null;
-    private static String targetSource = "rayon";
-
-    // TEMPORAIRE : ligne de controle sous le nom (type d entite + vie brute). Mettre false pour la retirer.
-    private static final boolean DEBUG_LINE = true;
-
-    private static Field crossField, hitField;
-    private static boolean reflInit = false;
-
-    /** Cible calculee par Minecraft lui-meme (comme Jade). Lecture par reflexion : pas de plantage si le champ n existe pas. */
-    private static Entity vanillaTarget(Minecraft mc) {
-        try {
-            if (!reflInit) {
-                reflInit = true;
-                for (Field f : Minecraft.class.getDeclaredFields()) {
-                    if (f.getName().equals("hitResult") && HitResult.class.isAssignableFrom(f.getType())) {
-                        f.setAccessible(true); hitField = f;
-                    }
-                    if (f.getName().equals("crosshairPickEntity") && Entity.class.isAssignableFrom(f.getType())) {
-                        f.setAccessible(true); crossField = f;
-                    }
-                }
-            }
-            if (hitField != null && hitField.get(mc) instanceof EntityHitResult r) return r.getEntity();
-            if (crossField != null && crossField.get(mc) instanceof Entity e) return e;
-        } catch (Throwable ignored) {
-        }
-        return null;
-    }
 
     private HudRenderer() {}
 
@@ -70,17 +40,7 @@ public final class HudRenderer {
     public static void updateTarget(Minecraft mc) {
         target = null;
         if (!UtilityModClient.entityHud || mc.player == null || mc.level == null) return;
-        if (hitField != null || crossField != null || !reflInit) {
-            Entity v = vanillaTarget(mc);
-            if (hitField != null || crossField != null) {
-                targetSource = "vanilla";
-                Player p = mc.player;
-                // La cible reste celle du viseur, mais uniquement jusqu'a 64 blocs inclus.
-                target = (v instanceof LivingEntity && p.distanceToSqr(v) <= RANGE * RANGE) ? v : null;
-                return;
-            }
-        }
-        targetSource = "rayon";
+        // Detection independante du ciblage vanilla : le viseur peut accrocher un mob jusqu'a 64 blocs.
         Player p = mc.player;
         Vec3 eye = p.getEyePosition(1.0f);
         Vec3 look = p.getViewVector(1.0f);
@@ -96,7 +56,8 @@ public final class HudRenderer {
                 eye, end, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, p));
         double blockDist = block.getType() == HitResult.Type.MISS
                 ? Double.MAX_VALUE : block.getLocation().distanceToSqr(eye);
-        if (eye.distanceToSqr(hit.getLocation()) < blockDist) target = hit.getEntity();
+        double hitDist = eye.distanceToSqr(hit.getLocation());
+        if (hitDist <= RANGE * RANGE && hitDist <= blockDist) target = hit.getEntity();
     }
 
     // ---------- Rendu ----------
@@ -119,16 +80,20 @@ public final class HudRenderer {
         float max = le.getMaxHealth();
         float absorb = le.getAbsorptionAmount();
 
-        if (max > JADE_MAX_HEALTH_FOR_ICONS) {
-            // Pour les entités ayant beaucoup de vie, conserver l'affichage compact.
-            String s = fmt(hp) + " / " + fmt(max) + " PV";
-            String extra = absorb > 0 ? " +" + fmt(absorb) : "";
-            int w = 11 + mc.font.width(s) + mc.font.width(extra);
+        if (max > NORMAL_HEARTS_MAX_HEALTH) {
+            // Au-dessus de 10 coeurs : PV au-dessus, puis un coeur rouge et le compte de coeurs.
+            String healthText = fmt(hp) + " / " + fmt(max) + " PV";
+            g.text(mc.font, healthText, cx - mc.font.width(healthText) / 2, y, 0xFFFFFFFF, true);
+            y += 11;
+
+            String heartCount = fmt(hp / 2.0f) + " / " + fmt(max / 2.0f);
+            String extra = absorb > 0 ? " +" + fmt(absorb / 2.0f) : "";
+            int w = 11 + mc.font.width(heartCount) + mc.font.width(extra);
             int x = cx - w / 2;
             g.blitSprite(RenderPipelines.GUI_TEXTURED, HEART_CONTAINER, x, y, 9, 9);
             g.blitSprite(RenderPipelines.GUI_TEXTURED, HEART_FULL, x, y, 9, 9);
-            g.text(mc.font, s, x + 11, y + 1, 0xFFFFFFFF, true);
-            if (!extra.isEmpty()) g.text(mc.font, extra, x + 11 + mc.font.width(s), y + 1, 0xFFFFE040, true);
+            g.text(mc.font, heartCount, x + 11, y + 1, 0xFFFFFFFF, true);
+            if (!extra.isEmpty()) g.text(mc.font, extra, x + 11 + mc.font.width(heartCount), y + 1, 0xFFFFE040, true);
             return;
         }
 
