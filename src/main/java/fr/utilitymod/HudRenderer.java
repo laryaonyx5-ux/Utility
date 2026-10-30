@@ -103,7 +103,8 @@ public final class HudRenderer {
         y += 11;
 
         // Rangees de 10 coeurs, puis les coeurs d'absorption (jaunes) en dessous.
-        int n = Math.max(1, (int) Math.ceil(hp / 2.0f));
+        // En mode barre classique, toujours afficher les 10 emplacements : les coeurs perdus restent noirs.
+        int n = HEARTS_PER_ROW;
         int a = absorb > 0 ? (int) Math.ceil(absorb / 2.0f) : 0;
         int cols = Math.min(HEARTS_PER_ROW, Math.max(n, a));
         int x0 = cx - (cols * 8 + 1) / 2;
