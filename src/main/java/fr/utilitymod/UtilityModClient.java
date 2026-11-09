@@ -8,6 +8,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.fog.FogRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 
@@ -29,7 +30,6 @@ public class UtilityModClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
-        // 26.3 : GLFW a été remplacé par SDL -> toujours utiliser InputConstants.KEY_*
         category = KeyMapping.Category.register(Identifier.fromNamespaceAndPath(MOD_ID, "main"));
         kArmor      = key("armor_hud",  InputConstants.KEY_J);
         kEntity     = key("entity_hud", InputConstants.KEY_K);
@@ -38,6 +38,11 @@ public class UtilityModClient implements ClientModInitializer {
         kFog        = key("fog",        InputConstants.KEY_N);
 
         Config.load();
+        // 26.3 possède déjà un interrupteur natif pour le brouillard.
+        // On synchronise son état avec la préférence sauvegardée du mod.
+        if (noFog) {
+            FogRenderer.toggleFog();
+        }
 
         ClientTickEvents.END_CLIENT_TICK.register(UtilityModClient::tick);
 
@@ -48,10 +53,27 @@ public class UtilityModClient implements ClientModInitializer {
     }
 
     private static void tick(Minecraft mc) {
-        while (kArmor.consumeClick())      { armorHud   = !armorHud;   msg(mc, "Armor HUD", armorHud); Config.save(); }
-        while (kEntity.consumeClick())     { entityHud  = !entityHud;  msg(mc, "Entity HUD", entityHud); Config.save(); }
-        while (kFullbright.consumeClick()) { fullbright = !fullbright; msg(mc, "Fullbright", fullbright); Config.save(); }
-        while (kFog.consumeClick())        { noFog      = !noFog;      msg(mc, "Fog", noFog); Config.save(); }
+        while (kArmor.consumeClick()) {
+            armorHud = !armorHud;
+            msg(mc, "Armor HUD", armorHud);
+            Config.save();
+        }
+        while (kEntity.consumeClick()) {
+            entityHud = !entityHud;
+            msg(mc, "Entity HUD", entityHud);
+            Config.save();
+        }
+        while (kFullbright.consumeClick()) {
+            fullbright = !fullbright;
+            msg(mc, "Fullbright", fullbright);
+            Config.save();
+        }
+        while (kFog.consumeClick()) {
+            // La 26.3 désactive réellement le buffer de brouillard via cette méthode.
+            noFog = !FogRenderer.toggleFog();
+            msg(mc, "Fog", noFog);
+            Config.save();
+        }
 
         boolean was = ZoomState.active;
         ZoomState.active = kZoom.isDown() && mc.player != null && mc.gui.screen() == null;
