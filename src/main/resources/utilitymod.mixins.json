@@ -5,7 +5,6 @@
   "client": [
     "FullbrightMixin",
     "FullbrightLightmapMixin",
-    "FogMixin",
     "ZoomScrollMixin",
     "ZoomFovMixin"
   ],
