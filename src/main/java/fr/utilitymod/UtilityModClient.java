@@ -8,7 +8,6 @@ import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.fog.FogRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 
@@ -38,12 +37,6 @@ public class UtilityModClient implements ClientModInitializer {
         kFog        = key("fog",        InputConstants.KEY_N);
 
         Config.load();
-        // 26.3 possède déjà un interrupteur natif pour le brouillard.
-        // On synchronise son état avec la préférence sauvegardée du mod.
-        if (noFog) {
-            FogRenderer.toggleFog();
-        }
-
         ClientTickEvents.END_CLIENT_TICK.register(UtilityModClient::tick);
 
         HudElementRegistry.attachElementBefore(
@@ -69,8 +62,8 @@ public class UtilityModClient implements ClientModInitializer {
             Config.save();
         }
         while (kFog.consumeClick()) {
-            // La 26.3 désactive réellement le buffer de brouillard via cette méthode.
-            noFog = !FogRenderer.toggleFog();
+            // Désactive le brouillard environnemental via FogMixin (eau, lave, distance, etc.).
+            noFog = !noFog;
             msg(mc, "Fog", noFog);
             Config.save();
         }
