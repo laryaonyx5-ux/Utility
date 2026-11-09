@@ -6,7 +6,8 @@
     "FullbrightMixin",
     "FullbrightLightmapMixin",
     "ZoomScrollMixin",
-    "ZoomFovMixin"
+    "ZoomFovMixin",
+    "FogMixin"
   ],
   "injectors": { "defaultRequire": 0 }
 }
