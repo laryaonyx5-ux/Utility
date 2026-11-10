@@ -3,20 +3,21 @@ package fr.utilitymod;
 import net.minecraft.client.Minecraft;
 
 /**
- * Etat du zoom : aucune interpolation et aucun pilotage de la rotation.
- * Le zoom ne modifie que le champ de vision dans ZoomFovMixin.
+ * Etat du zoom instantané.
+ * La rotation et la sensibilité de la souris restent celles de Minecraft.
  */
 public final class ZoomState {
     public static boolean active = false;
     public static double factor = 3.0;
+    public static boolean cameraHooked = false;
 
     private static boolean smoothCameraBeforeZoom = false;
 
     private ZoomState() {}
 
     /**
-     * Désactive le mode caméra cinématique pendant le zoom, puis restaure
-     * exactement le réglage que le joueur avait avant d'activer le zoom.
+     * Coupe le mode caméra cinématique pendant le zoom et restaure le réglage
+     * précédent lorsque la touche de zoom est relâchée.
      */
     public static void update(Minecraft mc, boolean shouldBeActive) {
         if (shouldBeActive) {
@@ -25,7 +26,6 @@ public final class ZoomState {
                 smoothCameraBeforeZoom = mc.options.smoothCamera;
             }
 
-            // Le zoom ne doit jamais activer le lissage de la caméra.
             mc.options.smoothCamera = false;
             active = true;
             return;

@@ -8,13 +8,14 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * Zoom instantané basé uniquement sur le FOV calculé par Minecraft.
- * Aucune modification de yaw/pitch, de sensibilité ou de position caméra.
+ * Zoom instantané appliqué uniquement au champ de vision calculé par Minecraft.
+ * La rotation, la vitesse de souris et la position de la caméra ne sont pas modifiées.
  */
 @Mixin(Camera.class)
 public abstract class ZoomFovMixin {
     @Inject(method = "calculateFov", at = @At("RETURN"), cancellable = true, require = 0)
     private void utilitymod$instantZoom(CallbackInfoReturnable<Float> cir) {
+        ZoomState.cameraHooked = true;
         if (!ZoomState.active) return;
 
         float vanillaFov = cir.getReturnValue();
