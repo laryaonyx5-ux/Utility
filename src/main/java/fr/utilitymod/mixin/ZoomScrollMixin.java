@@ -7,11 +7,15 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+/**
+ * La molette change directement le facteur de zoom, sans animation.
+ */
 @Mixin(MouseHandler.class)
 public abstract class ZoomScrollMixin {
     @Inject(method = "onScroll", at = @At("HEAD"), cancellable = true, require = 0)
-    private void utilitymod$scroll(long window, double xOffset, double yOffset, CallbackInfo ci) {
-        if (!ZoomState.active || yOffset == 0) return;
+    private void utilitymod$instantZoomScroll(long window, double xOffset, double yOffset, CallbackInfo ci) {
+        if (!ZoomState.active || yOffset == 0.0) return;
+
         ZoomState.factor = Math.max(1.0, ZoomState.factor * Math.pow(1.2, yOffset));
         ci.cancel();
     }

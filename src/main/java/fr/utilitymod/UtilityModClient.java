@@ -62,15 +62,13 @@ public class UtilityModClient implements ClientModInitializer {
             Config.save();
         }
         while (kFog.consumeClick()) {
-            // Désactive le brouillard environnemental via FogMixin (eau, lave, distance, etc.).
             noFog = !noFog;
             msg(mc, "Fog", noFog);
             Config.save();
         }
 
-        boolean was = ZoomState.active;
-        ZoomState.active = kZoom.isDown() && mc.player != null && mc.gui.screen() == null;
-        if (ZoomState.active && !was) ZoomState.factor = 3.0;
+        boolean zoomHeld = kZoom.isDown() && mc.player != null && mc.gui.screen() == null;
+        ZoomState.update(mc, zoomHeld);
 
         HudRenderer.updateTarget(mc);
     }

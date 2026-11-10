@@ -1,29 +1,39 @@
 package fr.utilitymod;
 
-import java.lang.reflect.Field;
+import net.minecraft.client.Minecraft;
 
+/**
+ * Etat du zoom : aucune interpolation et aucun pilotage de la rotation.
+ * Le zoom ne modifie que le champ de vision dans ZoomFovMixin.
+ */
 public final class ZoomState {
     public static boolean active = false;
     public static double factor = 3.0;
-    /** true des que le mixin de la camera a tourne au moins une fois : il gere alors tout le zoom. */
-    public static boolean cameraHooked = false;
+
+    private static boolean smoothCameraBeforeZoom = false;
+
     private ZoomState() {}
 
-    private static Field sensField;
-    private static boolean sensFailed = false;
-
-    /** Vrai si "inst" est l'option de sensibilite de la souris (recherche par reflexion, sans risque de plantage). */
-    public static boolean isSensitivity(Object options, Object inst) {
-        if (sensFailed) return false;
-        try {
-            if (sensField == null) {
-                sensField = options.getClass().getDeclaredField("sensitivity");
-                sensField.setAccessible(true);
+    /**
+     * Désactive le mode caméra cinématique pendant le zoom, puis restaure
+     * exactement le réglage que le joueur avait avant d'activer le zoom.
+     */
+    public static void update(Minecraft mc, boolean shouldBeActive) {
+        if (shouldBeActive) {
+            if (!active) {
+                factor = 3.0;
+                smoothCameraBeforeZoom = mc.options.smoothCamera;
             }
-            return sensField.get(options) == inst;
-        } catch (Throwable t) {
-            sensFailed = true;
-            return false;
+
+            // Le zoom ne doit jamais activer le lissage de la caméra.
+            mc.options.smoothCamera = false;
+            active = true;
+            return;
+        }
+
+        if (active) {
+            mc.options.smoothCamera = smoothCameraBeforeZoom;
+            active = false;
         }
     }
 }
