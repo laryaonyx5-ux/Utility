@@ -9,9 +9,9 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * Ralentit les deltas accumulés juste avant leur application à la caméra.
- * Les deltas sont consommés ensuite par Minecraft : ils ne sont donc réduits
- * qu'une seule fois. Hors zoom, les valeurs vanilla restent intactes.
+ * Reproduit la sensibilité relative de Zoomify à 100 % :
+ * les mouvements sont divisés par le facteur de zoom.
+ * Aucun lissage ni inertie n'est ajouté.
  */
 @Mixin(MouseHandler.class)
 public abstract class ZoomCameraMixin {
@@ -25,7 +25,8 @@ public abstract class ZoomCameraMixin {
     private void utilitymod$slowZoomCamera(CallbackInfo ci) {
         if (!ZoomState.active) return;
 
-        this.accumulatedDX *= ZoomState.CAMERA_SPEED;
-        this.accumulatedDY *= ZoomState.CAMERA_SPEED;
+        double divisor = Math.max(1.0, ZoomState.factor);
+        this.accumulatedDX /= divisor;
+        this.accumulatedDY /= divisor;
     }
 }
