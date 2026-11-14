@@ -12,8 +12,28 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: 9.6.0
-      - run: gradle build
+      - name: Build mod and source JAR
+        run: gradle clean build
+      - name: Prepare clean distribution archive contents
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p build/distribution
+          cp build/libs/*.jar build/distribution/
+          {
+            echo "UtilityMod - official GitHub Actions build"
+            echo
+            echo "Repository: https://github.com/laryaonyx5-ux/Utility"
+            echo "Commit: ${GITHUB_SHA}"
+            echo "Workflow run: ${GITHUB_RUN_ID}"
+            echo
+            echo "This distribution contains the compiled mod JAR and its sources JAR."
+            echo "SHA256SUMS.txt contains the SHA-256 checksums for both files."
+          } > build/distribution/README.txt
+          cd build/distribution
+          sha256sum ./*.jar > SHA256SUMS.txt
       - uses: actions/upload-artifact@v4
         with:
-          name: utilitymod
-          path: build/libs/
+          name: utilitymod-build
+          path: build/distribution/
+          if-no-files-found: error
