@@ -3,37 +3,27 @@ package fr.utilitymod;
 import net.minecraft.client.Minecraft;
 
 /**
- * Etat du zoom instantané.
- * La rotation et la sensibilité de la souris restent celles de Minecraft.
+ * Zoom instantané : seul le champ de vision est modifié.
+ * La caméra, sa rotation et la sensibilité restent celles de Minecraft.
  */
 public final class ZoomState {
     public static boolean active = false;
     public static double factor = 3.0;
     public static boolean cameraHooked = false;
 
-    private static boolean smoothCameraBeforeZoom = false;
-
     private ZoomState() {}
 
     /**
-     * Coupe le mode caméra cinématique pendant le zoom et restaure le réglage
-     * précédent lorsque la touche de zoom est relâchée.
+     * Désactive le lissage cinématique pour conserver le mouvement normal
+     * de la caméra Minecraft, pendant et après l'utilisation du zoom.
      */
     public static void update(Minecraft mc, boolean shouldBeActive) {
-        if (shouldBeActive) {
-            if (!active) {
-                factor = 3.0;
-                smoothCameraBeforeZoom = mc.options.smoothCamera;
-            }
+        mc.options.smoothCamera = false;
 
-            mc.options.smoothCamera = false;
-            active = true;
-            return;
+        if (shouldBeActive && !active) {
+            factor = 3.0;
         }
 
-        if (active) {
-            mc.options.smoothCamera = smoothCameraBeforeZoom;
-            active = false;
-        }
+        active = shouldBeActive;
     }
 }
