@@ -11,7 +11,7 @@ public final class ZoomState {
     public static boolean active = false;
     public static double factor = 3.0;
     public static boolean cameraHooked = false;
-    public static final double CAMERA_SPEED = 0.75;
+    public static final double CAMERA_SPEED = 0.45;
 
     private ZoomState() {}
 
