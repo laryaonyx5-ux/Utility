@@ -3,34 +3,29 @@ package fr.utilitymod.mixin;
 import fr.utilitymod.ZoomState;
 import net.minecraft.client.MouseHandler;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * Ralentit uniquement les deltas réels de souris pendant le zoom.
- * Aucun lissage temporel : zéro mouvement souris = zéro mouvement caméra.
+ * Ralentit les deltas accumulés juste avant leur application à la caméra.
+ * Les deltas sont consommés ensuite par Minecraft : ils ne sont donc réduits
+ * qu'une seule fois. Hors zoom, les valeurs vanilla restent intactes.
  */
 @Mixin(MouseHandler.class)
 public abstract class ZoomCameraMixin {
-    @ModifyVariable(
-            method = "onMove(JDDDD)V",
-            at = @At("HEAD"),
-            argsOnly = true,
-            ordinal = 2,
-            require = 0
-    )
-    private double utilitymod$slowZoomMouseX(double deltaX) {
-        return ZoomState.active ? deltaX * ZoomState.CAMERA_SPEED : deltaX;
-    }
+    @Shadow
+    private double accumulatedDX;
 
-    @ModifyVariable(
-            method = "onMove(JDDDD)V",
-            at = @At("HEAD"),
-            argsOnly = true,
-            ordinal = 3,
-            require = 0
-    )
-    private double utilitymod$slowZoomMouseY(double deltaY) {
-        return ZoomState.active ? deltaY * ZoomState.CAMERA_SPEED : deltaY;
+    @Shadow
+    private double accumulatedDY;
+
+    @Inject(method = "handleAccumulatedMovement", at = @At("HEAD"))
+    private void utilitymod$slowZoomCamera(CallbackInfo ci) {
+        if (!ZoomState.active) return;
+
+        this.accumulatedDX *= ZoomState.CAMERA_SPEED;
+        this.accumulatedDY *= ZoomState.CAMERA_SPEED;
     }
 }
