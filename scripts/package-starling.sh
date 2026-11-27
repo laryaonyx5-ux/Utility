@@ -2,10 +2,10 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-OUT="${1:-${ROOT}/utilitymod-1.1.0.hnmod}"
+OUT="${1:-${ROOT}/utilitymod-1.1.0.hmod}"
 
 command -v zip >/dev/null 2>&1 || {
-  echo "Error: zip is required to package the .hnmod archive." >&2
+  echo "Error: zip is required to package the .hmod archive." >&2
   exit 1
 }
 
