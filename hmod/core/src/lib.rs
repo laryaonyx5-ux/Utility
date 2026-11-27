@@ -6,8 +6,10 @@
  //! horizon-native.json.
 
 pub mod runtime;
+pub mod presentation;
 
 pub use runtime::{Config, EntityVitals, HudRow, Zoom};
+pub use presentation::{ArmorHud, EntityHud, FogDistances, resolve_fullbright};
 
 /// Native-mod identity used by the Starling compatibility mod list.
 pub const MOD_ID: &str = "utilitymod";
