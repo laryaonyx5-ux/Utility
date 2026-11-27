@@ -1,0 +1,7 @@
+{
+  "schema": 1,
+  "id": "utilitymod",
+  "game": "26.3",
+  "version": "1.1.0-rust",
+  "mixins": "0d6b103c70633d8fd9443d8d0acd3aadaacedb06"
+}
