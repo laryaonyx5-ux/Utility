@@ -41,7 +41,7 @@ impl Zoom {
     /// Same exponential wheel step as the Java implementation.
     pub fn scroll(&mut self, wheel_delta: f64) {
         if self.active && wheel_delta != 0.0 {
-            self.factor = (self.factor * 1.2_f64.powf(wheel_delta)).max(1.0);
+            self.factor = (self.factor * 1.2_f64.powf(wheel_delta)).clamp(1.0, 30.0);
         }
     }
 
