@@ -102,3 +102,13 @@ bindings = [
   { name = "game", ty = "&crate::game::Game<'_>", value = "&*self" },
   { name = "intensity", ty = "f32", value = "$value" },
 ]
+
+[[injection]]
+id = "no_fog"
+kind = "RETURN"
+target = "horizon_client::game::interface::render_tick::Game<'_>::frame_fog"
+helper = "fog.rs"
+bindings = [
+  { name = "game", ty = "&crate::game::Game<'_>", value = "&*self" },
+  { name = "fog", ty = "horizon_client::fog::FogData", value = "$value" },
+]
