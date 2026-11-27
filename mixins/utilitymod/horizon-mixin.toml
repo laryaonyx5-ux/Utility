@@ -96,11 +96,11 @@ bindings = [
 [[injection]]
 id = "fullbright"
 kind = "RETURN"
-target = "horizon_client::game::render_tick::Game<'_>::eye_brightness"
+target = "horizon_client::game::options::Game<'_>::hold_fullbright"
 helper = "fullbright.rs"
 bindings = [
-  { name = "game", ty = "&crate::game::Game<'_>", value = "&*self" },
-  { name = "intensity", ty = "f32", value = "$value" },
+  { name = "game", ty = "&mut crate::game::Game<'_>", value = "&mut *self" },
+  { name = "result", ty = "()", value = "$value" },
 ]
 
 [[injection]]
