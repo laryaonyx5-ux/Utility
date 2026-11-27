@@ -21,7 +21,7 @@ Run:
 bash scripts/package-starling.sh
 ```
 
-This creates `utilitymod-1.1.0.hnmod`. The archive places `horizon-mixin.toml` and its Rust helper files at the bundle root, matching Starling's native-mod bundle layout. GitHub Actions runs the portable Rust core tests and uploads the package as an artifact.
+This creates `utilitymod-1.1.0.hnmod`, a ZIP containing `horizon-native.json` and `mixins/utilitymod/` source files, which is the native bundle layout Starling reads. GitHub Actions runs the portable Rust core tests and uploads the package as an artifact.
 
 ## Validation status
 
