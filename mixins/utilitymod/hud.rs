@@ -4,9 +4,7 @@ fn utilitymod_hud(
     draw: &mut horizon_client::hud::HudBatch,
     _corners: &mut horizon_client::extras_hud::Corners,
 ) {
-    if !game.native_on("utilitymod") || !game.native_playing() {
-        return;
-    }
+    if !game.native_on("utilitymod") || !game.native_playing() { return; }
     if game.native_setting("utilitymod", "armor").as_deref() == Some("on") {
         utilitymod_armor_hud(game, draw);
     }
@@ -20,7 +18,7 @@ fn utilitymod_armor_hud(game: &crate::game::Game<'_>, draw: &mut horizon_client:
     let mut rows: Vec<(String, bool)> = Vec::new();
     for (index, label) in slots.iter().enumerate() {
         if let Some(stack) = game.armor.get(index).and_then(Option::as_ref) {
-            let max = game.items().get(&stack.item).map_or(0_u32, |item| item.max_damage as u32);
+            let max = game.items().stack_max_damage(stack);
             if max > 0 {
                 let remaining = max.saturating_sub(stack.damage);
                 let low = remaining as f32 <= max as f32 * 0.20;
@@ -31,7 +29,7 @@ fn utilitymod_armor_hud(game: &crate::game::Game<'_>, draw: &mut horizon_client:
         }
     }
     if let Some(stack) = game.offhand.as_ref() {
-        let max = game.items().get(&stack.item).map_or(0_u32, |item| item.max_damage as u32);
+        let max = game.items().stack_max_damage(stack);
         if max > 0 {
             let remaining = max.saturating_sub(stack.damage);
             let low = remaining as f32 <= max as f32 * 0.20;
@@ -40,6 +38,12 @@ fn utilitymod_armor_hud(game: &crate::game::Game<'_>, draw: &mut horizon_client:
             rows.push((format!("Offhand: {} x{}", stack.item, stack.count), false));
         }
     }
+
+    // Count food stacks in the player's inventory (including the hotbar).
+    let food_count: u32 = game.inventory.iter().flatten().filter(|stack| {
+        game.items().get(&stack.item).is_some_and(|item| item.food.is_some())
+    }).map(|stack| stack.count).sum();
+    if food_count > 0 { rows.push((format!("Food: x{food_count}"), false)); }
     if rows.is_empty() { return; }
 
     let atlas = &game.gui.atlas;
@@ -59,11 +63,7 @@ fn utilitymod_entity_hud(game: &crate::game::Game<'_>, draw: &mut horizon_client
     let Some((index, distance, _point)) = game.mob_hit_within(64.0) else { return; };
     let Some((eye, _direction)) = game.aim() else { return; };
     let block_distance = game.pick().map_or(f64::INFINITY, |hit| {
-        let d = [
-            hit.point[0] - eye[0],
-            hit.point[1] - eye[1],
-            hit.point[2] - eye[2],
-        ];
+        let d = [hit.point[0] - eye[0], hit.point[1] - eye[1], hit.point[2] - eye[2]];
         (d[0] * d[0] + d[1] * d[1] + d[2] * d[2]).sqrt()
     });
     if distance > block_distance { return; }
