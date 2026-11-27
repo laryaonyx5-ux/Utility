@@ -1,0 +1,15 @@
+id = "utilitymod"
+name = "Utility"
+version = "1.1.1"
+description = "Utility HUD port for Horizon: armor/entity HUD toggles, fullbright and fog controls."
+authors = ["laryaonyx5-ux"]
+api = "0.2"
+side = "client"
+capabilities = ["registries"]
+
+# Pin the native build used by this first API port. Update with cargo horizon-mod update
+# when targeting a newer Horizon nightly.
+[native]
+game = "26.3"
+horizon = "0a875da91dbb0fdcb7ba8c42c11341aa229af51a"
+mixins = "e59da9094f0c2fdda6c627fe9eff22dec6a906f0"
