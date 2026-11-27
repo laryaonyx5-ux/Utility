@@ -15,16 +15,16 @@ fn utilitymod_hud(
 
 fn utilitymod_armor_hud(game: &crate::game::Game<'_>, draw: &mut horizon_client::hud::HudBatch) {
     let slots = ["Head", "Chest", "Legs", "Feet"];
-    let mut rows: Vec<(String, bool)> = Vec::new();
+    let mut rows: Vec<(String, bool, Option<(u32, u32)>)> = Vec::new();
     for (index, label) in slots.iter().enumerate() {
         if let Some(stack) = game.armor.get(index).and_then(Option::as_ref) {
             let max = game.items().stack_max_damage(stack);
             if max > 0 {
                 let remaining = max.saturating_sub(stack.damage);
                 let low = remaining as f32 <= max as f32 * 0.20;
-                rows.push((format!("{label}: {}  {remaining}/{max}", stack.item), low));
+                rows.push((format!("{label}: {}  {remaining}/{max}", stack.item), low, Some((remaining, max))));
             } else {
-                rows.push((format!("{label}: {} x{}", stack.item, stack.count), false));
+                rows.push((format!("{label}: {} x{}", stack.item, stack.count), false, None));
             }
         }
     }
@@ -33,9 +33,9 @@ fn utilitymod_armor_hud(game: &crate::game::Game<'_>, draw: &mut horizon_client:
         if max > 0 {
             let remaining = max.saturating_sub(stack.damage);
             let low = remaining as f32 <= max as f32 * 0.20;
-            rows.push((format!("Offhand: {}  {remaining}/{max}", stack.item), low));
+            rows.push((format!("Offhand: {}  {remaining}/{max}", stack.item), low, Some((remaining, max))));
         } else {
-            rows.push((format!("Offhand: {} x{}", stack.item, stack.count), false));
+            rows.push((format!("Offhand: {} x{}", stack.item, stack.count), false, None));
         }
     }
 
@@ -43,19 +43,26 @@ fn utilitymod_armor_hud(game: &crate::game::Game<'_>, draw: &mut horizon_client:
     let food_count: u32 = game.inventory.iter().flatten().filter(|stack| {
         game.items().get(&stack.item).is_some_and(|item| item.food.is_some())
     }).map(|stack| stack.count).sum();
-    if food_count > 0 { rows.push((format!("Food: x{food_count}"), false)); }
+    if food_count > 0 { rows.push((format!("Food: x{food_count}"), false, None)); }
     if rows.is_empty() { return; }
 
     let atlas = &game.gui.atlas;
     let x = 5.0_f32;
     let y = 8.0_f32;
-    let height = 20.0 + rows.len() as f32 * 13.0;
+    let height = 22.0 + rows.len() as f32 * 18.0;
     draw.fill(atlas, x, y, 210.0, height, 0x88000000);
     draw.text(atlas, "Utility HUD - Armor", x + 5.0, y + 4.0, 0xFFFFFFFF, true);
-    for (index, (line, low)) in rows.iter().enumerate() {
+    for (index, (line, low, durability)) in rows.iter().enumerate() {
         let color = if *low { 0xFFFF2020 } else { 0xFFFFFFFF };
         let alert = if *low { "!!! " } else { "" };
-        draw.text(atlas, &format!("{alert}{line}"), x + 5.0, y + 18.0 + index as f32 * 13.0, color, true);
+        let row_y = y + 18.0 + index as f32 * 18.0;
+        draw.text(atlas, &format!("{alert}{line}"), x + 5.0, row_y, color, true);
+        if let Some((remaining, maximum)) = durability {
+            let ratio = if *maximum == 0 { 0.0 } else { *remaining as f32 / *maximum as f32 };
+            let bar_color = if *low { 0xFFFF2020 } else { 0xFF55DD55 };
+            draw.fill(atlas, x + 5.0, row_y + 10.0, 16.0, 2.0, 0xFF000000);
+            draw.fill(atlas, x + 6.0, row_y + 10.0, 14.0 * ratio.clamp(0.0, 1.0), 1.0, bar_color);
+        }
     }
 }
 
