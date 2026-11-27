@@ -96,7 +96,7 @@ bindings = [
 [[injection]]
 id = "fullbright"
 kind = "RETURN"
-target = "horizon_client::game::interface::render_tick::Game<'_>::eye_brightness"
+target = "horizon_client::game::render_tick::Game<'_>::eye_brightness"
 helper = "fullbright.rs"
 bindings = [
   { name = "game", ty = "&crate::game::Game<'_>", value = "&*self" },
@@ -106,7 +106,7 @@ bindings = [
 [[injection]]
 id = "no_fog"
 kind = "RETURN"
-target = "horizon_client::game::interface::render_tick::Game<'_>::frame_fog"
+target = "horizon_client::game::render_tick::Game<'_>::frame_fog"
 helper = "fog.rs"
 bindings = [
   { name = "game", ty = "&crate::game::Game<'_>", value = "&*self" },
