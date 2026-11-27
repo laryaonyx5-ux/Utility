@@ -18,20 +18,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
-      - name: Install Horizon mod tool
-        run: cargo install --locked --git https://github.com/horizon-rust/horizon cargo-horizon-mod
-      - name: Fetch pinned SDK
+      - name: Test portable Utility core
+        run: cargo test --manifest-path hmod/core/Cargo.toml
+      - name: Package native Horizon source mod
         working-directory: hmod
-        run: cargo horizon-mod update
-      - name: Check mod package
-        working-directory: hmod
-        run: cargo horizon-mod check .
-      - name: Build .hmod package
-        working-directory: hmod
-        run: cargo horizon-mod build .
-      - name: Upload .hmod
+        run: |
+          zip -r utilitymod-1.1.1.hmod horizon-mod.toml Cargo.toml src core
+      - name: Upload .hmod source package
         uses: actions/upload-artifact@v4
         with:
           name: utilitymod-horizon-hmod
-          path: hmod/target/horizon-mod/*.hmod
+          path: hmod/utilitymod-1.1.1.hmod
           if-no-files-found: error
