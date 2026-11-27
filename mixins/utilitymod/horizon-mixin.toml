@@ -61,3 +61,34 @@ bindings = [
   { name = "steps", ty = "f32", value = "steps" },
   { name = "claimed", ty = "&mut bool", value = "&mut *claimed" },
 ]
+
+[[injection]]
+id = "armor_hud"
+kind = "HEAD"
+target = "horizon_client::game::native_hooks::Game<'_>::native_render_gui_post"
+helper = "hud.rs"
+bindings = [
+  { name = "game", ty = "&crate::game::Game<'_>", value = "&*self" },
+  { name = "draw", ty = "&mut horizon_client::hud::HudBatch", value = "&mut *draw" },
+  { name = "corners", ty = "&mut horizon_client::extras_hud::Corners", value = "&mut *corners" },
+]
+
+[[injection]]
+id = "zoom_fov"
+kind = "HEAD"
+target = "horizon_client::game::native_hooks::Game<'_>::native_compute_fov_modifier"
+helper = "camera.rs"
+bindings = [
+  { name = "game", ty = "&crate::game::Game<'_>", value = "&*self" },
+  { name = "modifier", ty = "&mut f32", value = "&mut *modifier" },
+]
+
+[[injection]]
+id = "zoom_mouse"
+kind = "HEAD"
+target = "horizon_client::game::native_hooks::Game<'_>::native_calculate_player_turn"
+helper = "camera.rs"
+bindings = [
+  { name = "game", ty = "&crate::game::Game<'_>", value = "&*self" },
+  { name = "sensitivity", ty = "&mut f64", value = "&mut *mouse_sensitivity" },
+]
