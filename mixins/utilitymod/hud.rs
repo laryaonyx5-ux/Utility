@@ -101,14 +101,22 @@ fn utilitymod_entity_hud(game: &crate::game::Game<'_>, draw: &mut horizon_client
     let absorption = mob.absorption.max(0.0);
     let name = &mob.kind.id;
     let health_line = format!("{health:.1} / {max_health:.1} HP");
-    let heart_slots = ((max_health / 2.0).ceil() as usize).clamp(1, 10);
-    let full = (health / 2.0).floor() as usize;
-    let half = health - full as f32 * 2.0 >= 1.0;
     let mut hearts = String::new();
-    for slot in 0..heart_slots {
-        if slot < full { hearts.push('♥'); }
-        else if slot == full && half { hearts.push('♥'); }
-        else { hearts.push('♡'); }
+    if max_health > 20.0 {
+        // Match the Java HUD's compact layout for mobs with more than 10 hearts.
+        hearts = format!("♥ {:.1} / {:.1}", health / 2.0, max_health / 2.0);
+        if absorption > 0.0 {
+            hearts.push_str(&format!(" +{:.1}", absorption / 2.0));
+        }
+    } else {
+        let heart_slots = ((max_health / 2.0).ceil() as usize).clamp(1, 10);
+        let full = (health / 2.0).floor() as usize;
+        let half = health - full as f32 * 2.0 >= 1.0;
+        for slot in 0..heart_slots {
+            if slot < full { hearts.push('♥'); }
+            else if slot == full && half { hearts.push('♥'); }
+            else { hearts.push('♡'); }
+        }
     }
 
     let atlas = &game.gui.atlas;
@@ -122,7 +130,7 @@ fn utilitymod_entity_hud(game: &crate::game::Game<'_>, draw: &mut horizon_client
     draw.text(atlas, name, cx - name_width / 2.0, y, 0xFFFFFFFF, true);
     draw.text(atlas, &health_line, cx - health_width / 2.0, y + 12.0, 0xFFFFFFFF, true);
     draw.text(atlas, &hearts, cx - hearts_width / 2.0, y + 24.0, 0xFFFF5555, true);
-    if absorption > 0.0 {
+    if absorption > 0.0 && max_health <= 20.0 {
         draw.text(atlas, &format!("+{absorption:.1}"), cx + hearts_width / 2.0 + 4.0, y + 24.0, 0xFFFFE040, true);
     }
 }
