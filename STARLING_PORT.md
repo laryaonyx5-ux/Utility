@@ -15,6 +15,8 @@ The original Fabric Java source and its `.jar` remain unchanged on `main`.
 - Portable Rust calculations and unit tests for feature state, armor durability, entity hearts and zoom.
 - Native Starling mod-list row with configurable J/K/L/C/N bindings.
 - Native settings page toggles for Armor HUD, Entity HUD, Fullbright and No Fog.
+- Fullbright hook applies Horizon's renderer flag and keeps its multiplayer safety gate.
+- No Fog hook extends all six frame fog distances after Horizon computes fog.
 - Input dispatch for the four toggles; state is stored in Starling's mod settings.
 - Hold-C zoom state, starts at 3×, wheel multiplier 1.2× and clamp 1×–30×.
 - FOV hook applies the zoom factor; mouse-turn hook reduces sensitivity by the same factor.
@@ -25,9 +27,7 @@ The original Fabric Java source and its `.jar` remain unchanged on `main`.
 
 - Armor HUD: item sprites.
 - Entity HUD: proper translated display names, player targets, and vanilla heart sprites/rows for high-health entities.
-- Fullbright: the native renderer fullbright flag, preserving Horizon's multiplayer gate.
-- No Fog: all six fog distances extended after Horizon computes the frame fog.
 - Validate key press/release and the hook signatures against the pinned Starling build.
 - Build the native mod with Starling's pipeline and test it in-game.
 
-The current native adapter is still partial. The key/settings, zoom camera hooks, armor text/durability panel and mob health overlay are implemented in source, but fullbright and no-fog rendering have source hooks connected, but the native build has not been run. Do not mark the port complete until Starling builds it and the remaining features are implemented and tested.
+The current native adapter is still partial. The key/settings, zoom camera hooks, armor text/durability panel and mob health overlay are implemented in source, and the Fullbright/No Fog source hooks are connected; the native build has not been run. Do not mark the port complete until Starling builds it and the remaining features are implemented and tested.
