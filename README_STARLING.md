@@ -9,7 +9,8 @@ The original Java/Fabric source and its `.jar` are unchanged.
 - Starling mod settings page for those four feature switches.
 - C hold-to-zoom input, wheel scaling (1.2× per step), 3× start and 1×–30× limits.
 - Zoom FOV modifier and mouse sensitivity adjustment.
-- Armor/offhand text HUD with stack counts, durability values and low-durability warning.
+- Armor/offhand text HUD with stack counts, component-aware max durability, remaining durability and low-durability warning.
+- Total food stack count from the player's inventory.
 - Entity HUD for mobs within 64 blocks, with block occlusion, health, hearts and absorption.
 
 ## Incomplete / not yet verified
