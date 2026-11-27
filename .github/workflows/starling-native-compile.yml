@@ -1,0 +1,74 @@
+name: Utility Starling native compile
+
+on:
+  push:
+    branches:
+      - starling-rust
+  pull_request:
+    branches:
+      - starling-rust
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: utility-starling-native-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  native-compile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 345
+    steps:
+      - name: Checkout Utility
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Checkout pinned Starling source
+        uses: actions/checkout@v4
+        with:
+          repository: starling-client/starling
+          ref: 0e5bb58a44efa8e38ee067172a11e3c573829976
+          path: starling
+          persist-credentials: false
+
+      - name: Install Android NDK
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "ndk;28.2.13676358" > /dev/null
+          echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/28.2.13676358" >> "$GITHUB_ENV"
+
+      - name: Install Rust and Android target
+        run: bash starling/tools/ci/rustup_install.sh --profile minimal --target aarch64-linux-android
+
+      - name: Install cargo-ndk
+        run: cargo install cargo-ndk --version 3.5.4 --locked
+
+      - name: Prepare Utility native bundle for the official Starling check
+        run: |
+          mkdir -p "$RUNNER_TEMP/utility-mods/utilitymod"
+          cp -R mixins/utilitymod/. "$RUNNER_TEMP/utility-mods/utilitymod/"
+          bash scripts/package-starling.sh "$RUNNER_TEMP/utilitymod-1.1.0.hnmod"
+
+      - name: Compile Utility against pinned Starling (ARM64)
+        env:
+          WORK: ${{ runner.temp }}/utility-native-work
+          CARGO_TARGET_DIR: ${{ runner.temp }}/utility-cargo-target
+        run: |
+          bash starling/tools/starling/hnmod_compat.sh \
+            starling \
+            "$RUNNER_TEMP/utility-mods" \
+            "$RUNNER_TEMP/utility-native-results" \
+            utilitymod
+
+      - name: Upload native compile logs and package
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: utility-starling-native-build
+          path: |
+            ${{ runner.temp }}/utility-native-results
+            ${{ runner.temp }}/utilitymod-1.1.0.hnmod
+          if-no-files-found: warn
+          retention-days: 14
