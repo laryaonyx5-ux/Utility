@@ -14,13 +14,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
-      - name: Run core tests
+      - name: Run Rust core tests
         run: cargo test --all-targets
       - name: Package native mod
-        run: bash scripts/package-starling.sh "${{ github.workspace }}/utilitymod-1.1.0.hnmod"
+        run: bash scripts/package-starling.sh "${{ github.workspace }}/utilitymod-1.1.0.hmod"
       - name: Upload native package
         uses: actions/upload-artifact@v4
         with:
-          name: utilitymod-starling-hnmod
-          path: utilitymod-1.1.0.hnmod
+          name: utilitymod-starling-hmod
+          path: utilitymod-1.1.0.hmod
           if-no-files-found: error
