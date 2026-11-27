@@ -15,7 +15,7 @@ The original Java/Fabric source and its `.jar` are unchanged.
 
 ## Incomplete / not yet verified
 
-- Armor item sprites and a graphical durability bar (the current HUD is text-based).
+- Armor item sprites (the native HUD now draws text and durability bars).
 - Entity translated names, player targets and vanilla heart sprites/layout for high-health mobs.
 - Verify Fullbright and No Fog behavior in an actual Starling build.
 - Native build and in-game validation for the exact Starling 26.3 build.
