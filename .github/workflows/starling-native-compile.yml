@@ -55,6 +55,7 @@ jobs:
         env:
           WORK: ${{ runner.temp }}/utility-native-work
           CARGO_TARGET_DIR: ${{ runner.temp }}/utility-cargo-target
+          CARGO_NET_GIT_FETCH_WITH_CLI: "true"
         run: |
           bash starling/tools/starling/hnmod_compat.sh \
             starling \
