@@ -34,6 +34,15 @@ jobs:
           path: starling
           persist-credentials: false
 
+      - name: Checkout horizon-mixins history
+        uses: actions/checkout@v4
+        with:
+          repository: horizon-rust/horizon-mixins
+          ref: main
+          fetch-depth: 0
+          path: horizon-mixins
+          persist-credentials: false
+
       - name: Install Android NDK
         run: |
           yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "ndk;28.2.13676358" > /dev/null
@@ -45,6 +54,15 @@ jobs:
       - name: Install cargo-ndk
         run: cargo install cargo-ndk --version 3.5.4 --locked
 
+      - name: Build exact pinned horizon-mixins tool
+        run: |
+          rev="$(sed -n 's/^MIXINS_REV=//p' starling/packaging/android/native_build.sh)"
+          git -C horizon-mixins checkout "$rev"
+          cache="$HOME/.cache/starling-native/mixins-${rev:0:12}"
+          mkdir -p "$cache"
+          cargo install --locked --path horizon-mixins --root "$cache" horizon-mixins-cli
+          test -x "$cache/bin/horizon-mixins"
+
       - name: Prepare Utility native bundle for the official Starling check
         run: |
           mkdir -p "$RUNNER_TEMP/utility-mods/utilitymod"
@@ -55,7 +73,6 @@ jobs:
         env:
           WORK: ${{ runner.temp }}/utility-native-work
           CARGO_TARGET_DIR: ${{ runner.temp }}/utility-cargo-target
-          CARGO_NET_GIT_FETCH_WITH_CLI: "true"
         run: |
           bash starling/tools/starling/hnmod_compat.sh \
             starling \
