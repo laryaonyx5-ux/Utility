@@ -11,7 +11,7 @@ The original Java/Fabric source and its `.jar` are unchanged.
 - Zoom FOV modifier and mouse sensitivity adjustment.
 - Armor/offhand text HUD with stack counts, component-aware max durability, remaining durability and low-durability warning.
 - Total food stack count from the player's inventory.
-- Entity HUD for mobs within 64 blocks, with block occlusion, health, hearts and absorption.
+- Entity HUD for mobs within 64 blocks, with a full-range block occlusion ray, health, hearts and absorption.
 
 ## Incomplete / not yet verified
 
