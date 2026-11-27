@@ -23,7 +23,7 @@ The original Fabric Java source and its `.jar` remain unchanged on `main`.
 
 ## Still incomplete
 
-- Armor HUD: item sprites and vanilla-style durability bar.
+- Armor HUD: item sprites.
 - Entity HUD: proper translated display names, player targets, and vanilla heart sprites/rows for high-health entities.
 - Fullbright: the native renderer fullbright flag, preserving Horizon's multiplayer gate.
 - No Fog: all six fog distances extended after Horizon computes the frame fog.
