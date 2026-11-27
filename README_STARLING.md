@@ -21,10 +21,10 @@ Run:
 bash scripts/package-starling.sh
 ```
 
-This creates `utilitymod-1.1.0.hmod`, the native-mod archive format used by Starling. The GitHub Actions workflow runs the portable Rust core tests and uploads the archive as an artifact.
+This creates `utilitymod-1.1.0.hnmod`. The archive places `horizon-mixin.toml` and its Rust helper files at the bundle root, matching Starling's native-mod bundle layout. GitHub Actions runs the portable Rust core tests and uploads the package as an artifact.
 
 ## Validation status
 
 The portable Rust core has unit tests. The injected Starling mixin sources have **not** been built against the pinned Horizon revision or validated in-game in this repository. Therefore this branch is a work in progress, not a verified 100% replacement for the Fabric mod.
 
-To build and test the native adapter, import the source through Starling's Native Mods workflow for the exact installed game build and resolve any compiler diagnostics from the mixin pipeline.
+To build and test the native adapter, import the `.hnmod` through Starling's Native Mods workflow for the exact installed game build and resolve any compiler diagnostics from the mixin pipeline.
