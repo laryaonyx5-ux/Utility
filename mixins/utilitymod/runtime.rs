@@ -26,4 +26,10 @@ impl Game<'_> {
         let next = (old * 1.2_f32.powf(steps)).clamp(1.0, 30.0);
         ZOOM_FACTOR_BITS.store(next.to_bits(), Ordering::Relaxed);
     }
+
+    pub(crate) fn utilitymod_apply_fov(&self, modifier: &mut f32) {
+        if self.native_on("utilitymod") && self.utilitymod_zoom_active() {
+            *modifier /= self.utilitymod_zoom_factor().max(1.0);
+        }
+    }
 }
