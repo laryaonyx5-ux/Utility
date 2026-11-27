@@ -23,7 +23,8 @@ jobs:
       - name: Package native Horizon source mod
         working-directory: hmod
         run: |
-          zip -r utilitymod-1.1.1.hmod horizon-mod.toml Cargo.toml src core
+          zip -r utilitymod-1.1.1.hmod horizon-mod.toml Cargo.toml src core \
+            -x "core/target/*" "core/.git/*" "*.DS_Store"
       - name: Upload .hmod source package
         uses: actions/upload-artifact@v4
         with:
