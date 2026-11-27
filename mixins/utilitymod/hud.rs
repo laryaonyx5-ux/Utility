@@ -43,7 +43,14 @@ fn utilitymod_armor_hud(game: &crate::game::Game<'_>, draw: &mut horizon_client:
     let food_count: u32 = game.inventory.iter().flatten().filter(|stack| {
         game.items().get(&stack.item).is_some_and(|item| item.food.is_some())
     }).map(|stack| stack.count).sum();
-    if food_count > 0 { rows.push((format!("Food: x{food_count}"), false, None, None)); }
+    let first_food_slot = game.inventory.iter().position(|entry| {
+        entry.as_ref().is_some_and(|stack| {
+            game.items().get(&stack.item).is_some_and(|item| item.food.is_some())
+        })
+    });
+    if food_count > 0 {
+        rows.push((format!("Food: x{food_count}"), false, None, first_food_slot.map(|slot| slot + 5)));
+    }
     if rows.is_empty() { return; }
 
     let atlas = &game.gui.atlas;
@@ -62,7 +69,7 @@ fn utilitymod_armor_hud(game: &crate::game::Game<'_>, draw: &mut horizon_client:
             } else if *slot == 4 {
                 game.offhand.as_ref()
             } else {
-                None
+                game.inventory.get(slot.saturating_sub(5)).and_then(Option::as_ref)
             };
             if let Some(stack) = stack {
                 game.draw_item_model(draw, stack, x + 5.0, row_y - 9.0);
