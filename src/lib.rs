@@ -45,6 +45,8 @@ mod tests {
         assert_eq!(zoom.factor, 30.0);
         zoom.scroll(-100.0);
         assert_eq!(zoom.factor, 1.0);
+        zoom.scroll(f64::NAN);
+        assert_eq!(zoom.factor, 1.0);
         zoom.update(false);
         assert!(!zoom.active);
     }
