@@ -21,7 +21,7 @@ jobs:
       - name: Test portable Utility core
         run: cargo test --manifest-path hmod/core/Cargo.toml
       - name: Install Horizon mod tooling
-        run: cargo install --locked --git https://github.com/horizon-rust/horizon cargo-horizon-mod
+        run: cargo install --locked --git https://github.com/arismoko/horizon cargo-horizon-mod
       - name: Fetch pinned SDK and compile-check native adapter
         working-directory: hmod
         run: cargo horizon-mod check
