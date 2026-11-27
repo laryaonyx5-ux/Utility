@@ -67,4 +67,30 @@ mod tests {
         assert_eq!(vitals.absorption_full_hearts, 1);
         assert!(vitals.absorption_half_heart);
     }
+
+    #[test]
+    fn nondamageable_items_have_no_durability_alert() {
+        let row = HudRow::from_item("minecraft:apple", 0, 0, 12, false);
+        assert_eq!(row.durability_remaining, None);
+        assert_eq!(row.durability_max, None);
+        assert!(!row.low_durability);
+        assert_eq!(row.stack_count, 12);
+    }
+
+    #[test]
+    fn zoom_wheel_does_nothing_when_not_held() {
+        let mut zoom = Zoom::default();
+        zoom.scroll(5.0);
+        assert_eq!(zoom.factor, 3.0);
+        assert!(!zoom.active);
+    }
+
+    #[test]
+    fn zero_health_and_absorption_never_make_negative_hearts() {
+        let vitals = EntityVitals::new(-4.0, 10.0, -2.0);
+        assert_eq!(vitals.health_full_hearts, 0);
+        assert!(!vitals.health_half_heart);
+        assert_eq!(vitals.absorption_full_hearts, 0);
+        assert!(!vitals.absorption_half_heart);
+    }
 }
