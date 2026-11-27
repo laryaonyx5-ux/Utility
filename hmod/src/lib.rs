@@ -6,7 +6,7 @@
 
 use mod_api::{
     self, ClientHost, ClientTickPostEvent, Hooks, KeyRegistration, Registrar,
-    RegistrationContext, Text,
+    RegistrationContext, Text, Zoom, ZoomEvent,
 };
 use std::sync::Mutex;
 use utilitymod::Config;
@@ -18,6 +18,7 @@ const BINDS: &[(&str, &str, &str)] = &[
     ("entity_hud", "Entity HUD", "key.keyboard.k"),
     ("fullbright", "Fullbright", "key.keyboard.l"),
     ("fog", "No Fog", "key.keyboard.n"),
+    ("zoom", "Zoom", "key.keyboard.c"),
 ];
 
 #[derive(Default)]
@@ -38,6 +39,14 @@ impl Hooks for Utility {
             mapping.label = format!("{ID}.key.{id}: {label}");
             registrar.register_key_mapping(mapping);
         }
+    }
+
+    /// Horizon's native zoom hook: hold C, 3x zoom, instant transition, slower camera turning.
+    fn zoom(&self, host: &dyn ClientHost, _event: &mut ZoomEvent) -> Option<Zoom> {
+        if !host.playing() || !host.is_down(ID, "zoom") {
+            return None;
+        }
+        Some(Zoom { factor: 3.0, smooth: false, turn: 0.45 })
     }
 
     fn client_tick_post(&self, host: &mut dyn ClientHost, _event: &mut ClientTickPostEvent) {
