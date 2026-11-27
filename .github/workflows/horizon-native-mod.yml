@@ -1,0 +1,37 @@
+name: Horizon native mod package
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - utility-horizon-native-port
+    paths:
+      - "hmod/**"
+      - "src/**"
+      - "Cargo.toml"
+      - "runtime.rs"
+      - ".github/workflows/horizon-native-mod.yml"
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install Horizon mod tool
+        run: cargo install --locked --git https://github.com/horizon-rust/horizon cargo-horizon-mod
+      - name: Fetch pinned SDK
+        working-directory: hmod
+        run: cargo horizon-mod update
+      - name: Check mod package
+        working-directory: hmod
+        run: cargo horizon-mod check .
+      - name: Build .hmod package
+        working-directory: hmod
+        run: cargo horizon-mod build .
+      - name: Upload .hmod
+        uses: actions/upload-artifact@v4
+        with:
+          name: utilitymod-horizon-hmod
+          path: hmod/target/horizon-mod/*.hmod
+          if-no-files-found: error
