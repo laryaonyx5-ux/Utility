@@ -23,10 +23,10 @@ The original Fabric Java source and its `.jar` remain unchanged on `main`.
 
 ## Still incomplete
 
-- Armor HUD: item sprites, vanilla durability bar, food count, and max-damage overrides from item components.
+- Armor HUD: item sprites and vanilla-style durability bar.
 - Entity HUD: proper translated display names, player targets, and vanilla heart sprites/rows for high-health entities.
-- Fullbright: a renderer lighting/lightmap hook.
-- No Fog: a renderer fog hook that preserves lava, powder-snow, blindness and other intended special fog.
+- Fullbright: the renderer's lightmap brightness hook.
+- No Fog: a renderer fog-data hook.
 - Validate key press/release and the hook signatures against the pinned Starling build.
 - Build the native mod with Starling's pipeline and test it in-game.
 
