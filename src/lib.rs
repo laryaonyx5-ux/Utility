@@ -41,6 +41,10 @@ mod tests {
         zoom.scroll(1.0);
         assert!((zoom.factor - 3.6).abs() < 0.0001);
         assert!((zoom.mouse_divisor() - 3.6).abs() < 0.0001);
+        zoom.scroll(100.0);
+        assert_eq!(zoom.factor, 30.0);
+        zoom.scroll(-100.0);
+        assert_eq!(zoom.factor, 1.0);
         zoom.update(false);
         assert!(!zoom.active);
     }
