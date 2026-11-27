@@ -68,8 +68,9 @@ fn utilitymod_armor_hud(game: &crate::game::Game<'_>, draw: &mut horizon_client:
 
 fn utilitymod_entity_hud(game: &crate::game::Game<'_>, draw: &mut horizon_client::hud::HudBatch) {
     let Some((index, distance, _point)) = game.mob_hit_within(64.0) else { return; };
-    let Some((eye, _direction)) = game.aim() else { return; };
-    let block_distance = game.pick().map_or(f64::INFINITY, |hit| {
+    let Some((eye, direction)) = game.aim() else { return; };
+    // Trace the entire target range. Game::pick() deliberately stops at vanilla block reach.
+    let block_distance = game.clip_ray(eye, direction, 64.0).map_or(f64::INFINITY, |hit| {
         let d = [hit.point[0] - eye[0], hit.point[1] - eye[1], hit.point[2] - eye[2]];
         (d[0] * d[0] + d[1] * d[1] + d[2] * d[2]).sqrt()
     });
