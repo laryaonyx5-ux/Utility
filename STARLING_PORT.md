@@ -3,33 +3,30 @@
 This branch is for the Starling/Horizon native version of Utility HUD.
 The original Fabric Java source and its `.jar` remain unchanged on `main`.
 
-## Target package
+## Target
 
-- Game: Minecraft 26.3 / Starling's matching Horizon build
-- Language: Rust
-- Starling native package: `.hnmod`
-- Mod id: `utilitymod`
+- Minecraft 26.3 / matching Starling-Horizon build
+- Rust native mod, id `utilitymod`
+- Native package manifest: `horizon-native.json`
+- Pinned Horizon mixins: `0d6b103c70633d8fd9443d8d0acd3aadaacedb06`
 
-## Features to port from the Fabric version
+## Port status
 
-The source on `main` currently documents these default controls:
+Implemented and committed on this branch:
+- Rust core state for Armor HUD, Entity HUD, Fullbright and Fog toggles.
+- Hold-to-zoom state: starts at 3×, wheel multiplier 1.2×, FOV calculation and mouse divisor.
+- Armor durability calculation and low-durability threshold (20%).
+- Entity health/absorption heart calculations, 64-block target range and 10-heart row constant.
+- Starling native mod-list registration.
+- Unit tests for the portable Rust calculations.
 
-| Feature | Default | Required native integration |
-|---|---:|---|
-| Armor HUD | J | HUD rendering + player armor/inventory data |
-| Entity HUD | K | HUD rendering + entity targeting/data |
-| Fullbright | L | game lighting/render hook or supported setting |
-| Fog toggle | N | fog/render hook |
-| Zoom | C (hold + wheel) | key state + wheel + camera/FOV hook |
+Not yet complete:
+- Native key registration and J/K/L/N/C input dispatch.
+- Actual HUD drawing and entity raycast/block occlusion.
+- Game-backed armor/inventory/food reads.
+- Lighting/fullbright and fog hooks.
+- Camera FOV, mouse movement and scroll hook wiring.
+- Native settings UI and persistent config.
+- A successful Starling native build and in-game validation.
 
-## Porting rules
-
-1. Keep this branch independent from the Fabric `.jar`.
-2. Reuse the user-facing behavior and defaults, not Java/Fabric implementation details.
-3. Implement through Starling's documented native-mod hooks and settings API.
-4. Do not claim a feature is working until it is connected to a real hook and built by Starling.
-5. The native package must be imported and compiled by Starling's Native Mods workflow; copying a Rust source file into Mods is not sufficient.
-
-## Status
-
-Scaffold / API mapping only. The feature hooks and in-game validation are not complete yet.
+The Rust behavior core is not, by itself, a playable port. Do not mark the mod complete or tell the user all five features work until the remaining adapters are implemented and Starling builds it.
