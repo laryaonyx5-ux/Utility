@@ -25,9 +25,9 @@ The original Fabric Java source and its `.jar` remain unchanged on `main`.
 
 - Armor HUD: item sprites and vanilla-style durability bar.
 - Entity HUD: proper translated display names, player targets, and vanilla heart sprites/rows for high-health entities.
-- Fullbright: the renderer's lightmap brightness hook.
-- No Fog: a renderer fog-data hook.
+- Fullbright: the native renderer fullbright flag, preserving Horizon's multiplayer gate.
+- No Fog: all six fog distances extended after Horizon computes the frame fog.
 - Validate key press/release and the hook signatures against the pinned Starling build.
 - Build the native mod with Starling's pipeline and test it in-game.
 
-The current native adapter is still partial. The key/settings, zoom camera hooks, armor text/durability panel and mob health overlay are implemented in source, but fullbright and no-fog rendering are not connected, and the native build has not been run. Do not mark the port complete until Starling builds it and the remaining features are implemented and tested.
+The current native adapter is still partial. The key/settings, zoom camera hooks, armor text/durability panel and mob health overlay are implemented in source, but fullbright and no-fog rendering have source hooks connected, but the native build has not been run. Do not mark the port complete until Starling builds it and the remaining features are implemented and tested.
