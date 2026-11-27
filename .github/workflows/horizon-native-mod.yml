@@ -20,14 +20,17 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - name: Test portable Utility core
         run: cargo test --manifest-path hmod/core/Cargo.toml
-      - name: Package native Horizon source mod
+      - name: Install Horizon mod tooling
+        run: cargo install --locked --git https://github.com/horizon-rust/horizon cargo-horizon-mod
+      - name: Fetch pinned SDK and compile-check native adapter
         working-directory: hmod
-        run: |
-          zip -r utilitymod-1.1.1.hmod horizon-mod.toml Cargo.toml src core \
-            -x "core/target/*" "core/.git/*" "*.DS_Store"
-      - name: Upload .hmod source package
+        run: cargo horizon-mod check
+      - name: Build validated .hmod package
+        working-directory: hmod
+        run: cargo horizon-mod build
+      - name: Upload validated .hmod package
         uses: actions/upload-artifact@v4
         with:
           name: utilitymod-horizon-hmod
-          path: hmod/utilitymod-1.1.1.hmod
+          path: hmod/target/horizon-mod/utilitymod.hmod
           if-no-files-found: error
