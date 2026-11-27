@@ -1,28 +1,30 @@
 # Utility HUD — Starling Rust port
 
-This branch is the native Rust adaptation of the Fabric mod in `main`.
+This branch contains a native Rust adaptation of the Fabric mod on `main`.
 The original Java/Fabric source and its `.jar` are unchanged.
 
-## Native features currently connected
+## Ported source features
 
 - J / K / L / N toggles for Armor HUD, Entity HUD, Fullbright and No Fog.
-- Starling mod settings page for those four feature switches.
-- Fullbright through Horizon's renderer flag (with its multiplayer safety gate) and No Fog through the frame's six fog distances.
-- C hold-to-zoom input, wheel scaling (1.2× per step), 3× start and 1×–30× limits.
-- Zoom FOV modifier and mouse sensitivity adjustment.
-- Armor/offhand text HUD with stack counts, component-aware max durability, remaining durability and low-durability warning.
-- Total food stack count from the player's inventory.
-- Entity HUD for mobs within 64 blocks, with a full-range block occlusion ray, health, hearts and absorption.
+- Starling mod-list row and settings-page source for the four toggles.
+- C hold-to-zoom source, wheel scaling (1.2× per step), 3× start and 1×–30× limits.
+- Zoom FOV modifier and mouse-sensitivity adjustment.
+- Armor/offhand durability and stack-count HUD source, with low-durability warning.
+- Food stack count source.
+- Entity HUD source for mobs within 64 blocks, block occlusion, health, hearts and absorption.
 
-## Incomplete / not yet verified
+## Native package
 
-- Armor/offhand item sprites, component-aware durability bars and low-durability alerts.
-- Entity translated names, player targets and vanilla heart sprites/layout for high-health mobs.
-- Verify Fullbright and No Fog behavior in an actual Starling build.
-- Native build and in-game validation for the exact Starling 26.3 build.
+Run:
 
-## Build target
+```sh
+bash scripts/package-starling.sh
+```
 
-Starling/Horizon Minecraft 26.3. This is a trusted native Rust mod; only import it if you trust the source. Use Starling's Native Mods workflow to build it for the exact installed game build.
+This creates `utilitymod-1.1.0.hmod`, the native-mod archive format used by Starling. The GitHub Actions workflow runs the portable Rust core tests and uploads the archive as an artifact.
 
-The source is a partial port, not a finished replacement for the Fabric `.jar`. See [STARLING_PORT.md](STARLING_PORT.md) for the implementation checklist.
+## Validation status
+
+The portable Rust core has unit tests. The injected Starling mixin sources have **not** been built against the pinned Horizon revision or validated in-game in this repository. Therefore this branch is a work in progress, not a verified 100% replacement for the Fabric mod.
+
+To build and test the native adapter, import the source through Starling's Native Mods workflow for the exact installed game build and resolve any compiler diagnostics from the mixin pipeline.
