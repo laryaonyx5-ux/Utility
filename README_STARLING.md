@@ -9,12 +9,13 @@ The original Java/Fabric source and its `.jar` are unchanged.
 - Starling mod settings page for those four feature switches.
 - C hold-to-zoom input, wheel scaling (1.2× per step), 3× start and 1×–30× limits.
 - Zoom FOV modifier and mouse sensitivity adjustment.
-- First native armor/offhand text HUD pass, reading live equipment from the game.
+- Armor/offhand text HUD with stack counts, durability values and low-durability warning.
+- Entity HUD for mobs within 64 blocks, with block occlusion, health, hearts and absorption.
 
 ## Incomplete / not yet verified
 
-- Entity HUD target raycast and health/absorption heart rendering.
-- Armor item icons, exact durability bar, low-durability warning and food count.
+- Armor item sprites, vanilla durability bars, food count and item component overrides.
+- Entity translated names, player targets and vanilla heart sprites/layout for high-health mobs.
 - Fullbright renderer lighting hook.
 - No Fog renderer hook.
 - Native build and in-game validation for the exact Starling 26.3 build.
