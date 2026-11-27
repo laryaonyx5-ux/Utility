@@ -10,23 +10,23 @@ The original Fabric Java source and its `.jar` remain unchanged on `main`.
 - Native package manifest: `horizon-native.json`
 - Pinned Horizon mixins: `0d6b103c70633d8fd9443d8d0acd3aadaacedb06`
 
-## Port status
+## Implemented in this branch
 
-Implemented and committed on this branch:
-- Rust core state for Armor HUD, Entity HUD, Fullbright and Fog toggles.
-- Hold-to-zoom state: starts at 3×, wheel multiplier 1.2×, FOV calculation and mouse divisor.
-- Armor durability calculation and low-durability threshold (20%).
-- Entity health/absorption heart calculations, 64-block target range and 10-heart row constant.
-- Starling native mod-list registration.
-- Unit tests for the portable Rust calculations.
+- Portable Rust calculations and unit tests for feature state, armor durability, entity hearts and zoom.
+- Native Starling mod-list row with configurable J/K/L/C/N bindings.
+- Native settings page toggles for Armor HUD, Entity HUD, Fullbright and No Fog.
+- Input dispatch for the four toggles; state is stored in Starling's mod settings.
+- Hold-C zoom state, starts at 3×, wheel multiplier 1.2× and clamp 1×–30×.
+- FOV hook applies the zoom factor; mouse-turn hook reduces sensitivity by the same factor.
+- Native GUI-post hook draws an armor/offhand text panel from the live player equipment.
 
-Not yet complete:
-- Native key registration and J/K/L/N/C input dispatch.
-- Actual HUD drawing and entity raycast/block occlusion.
-- Game-backed armor/inventory/food reads.
-- Lighting/fullbright and fog hooks.
-- Camera FOV, mouse movement and scroll hook wiring.
-- Native settings UI and persistent config.
-- A successful Starling native build and in-game validation.
+## Still incomplete
 
-The Rust behavior core is not, by itself, a playable port. Do not mark the mod complete or tell the user all five features work until the remaining adapters are implemented and Starling builds it.
+- Entity HUD: raycast to a living target, block occlusion, target name and health/absorption hearts.
+- Armor HUD: item icons, exact damage/max durability, low-durability alert, food count and item-bar rendering.
+- Fullbright: a renderer lighting/lightmap hook.
+- No Fog: a renderer fog hook that preserves lava, powder-snow, blindness and other intended special fog.
+- Validate the key event's press/release behavior against the pinned Starling build.
+- Build the native mod with Starling's pipeline and test it in-game.
+
+The current native adapter is partial. The toggle controls and zoom FOV/mouse hooks are wired in source, and the armor panel is a first working rendering pass; the remaining features above are not implemented or verified. Do not mark the port complete until Starling builds it and the listed features are tested.
