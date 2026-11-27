@@ -52,7 +52,7 @@ pub fn resolve_fullbright(horizon_enabled: bool, utility_enabled: bool, safety_h
     (horizon_enabled || utility_enabled) && !safety_held
 }
 
-#[cfg(test)]]
+#[cfg(test)]
 mod tests {
     use super::*;
     #[test]
