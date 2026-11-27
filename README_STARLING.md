@@ -17,8 +17,8 @@ The original Java/Fabric source and its `.jar` are unchanged.
 
 - Armor item sprites, vanilla durability bars, food count and item component overrides.
 - Entity translated names, player targets and vanilla heart sprites/layout for high-health mobs.
-- Fullbright renderer lighting hook.
-- No Fog renderer hook.
+- Fullbright through Horizon's native renderer flag, respecting its multiplayer safety gate.
+- No Fog by extending the six native fog distances after Horizon computes fog.
 - Native build and in-game validation for the exact Starling 26.3 build.
 
 ## Build target
