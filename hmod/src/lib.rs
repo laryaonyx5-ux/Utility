@@ -6,7 +6,7 @@
 
 use mod_api::{
     self, ClientHost, ClientTickPostEvent, Hooks, KeyRegistration, Registrar,
-    RegistrationContext, Text, Zoom, ZoomEvent,
+    RegistrationContext, RenderFogEvent, Text, Zoom, ZoomEvent,
 };
 use std::sync::Mutex;
 use utilitymod::Config;
@@ -47,6 +47,22 @@ impl Hooks for Utility {
             return None;
         }
         Some(Zoom { factor: 3.0, smooth: false, turn: 0.45 })
+    }
+
+    /// Expand the final fog distances when No Fog is enabled.
+    fn render_fog(&self, host: &dyn ClientHost, event: &mut RenderFogEvent<'_>) {
+        if !host.playing() {
+            return;
+        }
+        let enabled = self.config.lock().map(|config| config.no_fog).unwrap_or(false);
+        if enabled {
+            event.fog.environmental_start = 30_000_000.0;
+            event.fog.environmental_end = 40_000_000.0;
+            event.fog.render_distance_start = 30_000_000.0;
+            event.fog.render_distance_end = 40_000_000.0;
+            event.fog.sky_end = 40_000_000.0;
+            event.fog.cloud_end = 40_000_000.0;
+        }
     }
 
     fn client_tick_post(&self, host: &mut dyn ClientHost, _event: &mut ClientTickPostEvent) {
