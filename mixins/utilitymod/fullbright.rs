@@ -1,5 +1,4 @@
-// Override the final frame's night-vision brightening factor while Fullbright is enabled.
-// Force the eye's lightmap brightness to its maximum without permanently changing gamma.
+// Port of FullbrightLightmapMixin: force the eye lightmap brightness to 1.0.
 fn utilitymod_fullbright(game: &crate::game::Game<'_>, intensity: f32) -> f32 {
     if game.native_on("utilitymod")
         && game.native_setting("utilitymod", "fullbright").as_deref() == Some("on")
