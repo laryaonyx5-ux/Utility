@@ -7,6 +7,7 @@ The original Java/Fabric source and its `.jar` are unchanged.
 
 - J / K / L / N toggles for Armor HUD, Entity HUD, Fullbright and No Fog.
 - Starling mod settings page for those four feature switches.
+- Fullbright through Horizon's renderer flag (with its multiplayer safety gate) and No Fog through the frame's six fog distances.
 - C hold-to-zoom input, wheel scaling (1.2× per step), 3× start and 1×–30× limits.
 - Zoom FOV modifier and mouse sensitivity adjustment.
 - Armor/offhand text HUD with stack counts, component-aware max durability, remaining durability and low-durability warning.
