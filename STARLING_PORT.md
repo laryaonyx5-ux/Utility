@@ -25,7 +25,6 @@ The original Fabric Java source and its `.jar` remain unchanged on `main`.
 
 ## Still incomplete
 
-- Armor HUD: item sprites.
 - Entity HUD: proper translated display names, player targets, and vanilla heart sprites/rows for high-health entities.
 - Validate key press/release and the hook signatures against the pinned Starling build.
 - Build the native mod with Starling's pipeline and test it in-game.
