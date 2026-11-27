@@ -92,3 +92,13 @@ bindings = [
   { name = "game", ty = "&crate::game::Game<'_>", value = "&*self" },
   { name = "sensitivity", ty = "&mut f64", value = "&mut *mouse_sensitivity" },
 ]
+
+[[injection]]
+id = "fullbright"
+kind = "RETURN"
+target = "horizon_client::game::Game<'_>::night_vision_intensity"
+helper = "fullbright.rs"
+bindings = [
+  { name = "game", ty = "&crate::game::Game<'_>", value = "&*self" },
+  { name = "intensity", ty = "f32", value = "$value" },
+]
