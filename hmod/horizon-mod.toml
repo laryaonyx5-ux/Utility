@@ -13,3 +13,15 @@ capabilities = ["registries"]
 game = "26.3"
 horizon = "0a875da91dbb0fdcb7ba8c42c11341aa229af51a"
 mixins = "e59da9094f0c2fdda6c627fe9eff22dec6a906f0"
+
+
+# Apply Utility's Fullbright to the renderer for each frame. Horizon's own
+# brightness and Extras settings are restored exactly when the toggle is off.
+[[native.mixin]]
+id = "utilitymod_fullbright_frame"
+target = "horizon_client::game::Game<'_>::render_and_flip"
+kind = "HEAD"
+helper = "src/mixins/fullbright_frame.rs"
+bindings = [
+  { name = "game", ty = "&mut crate::game::Game<'_>", value = "&mut *self" },
+]
