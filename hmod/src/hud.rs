@@ -90,7 +90,7 @@ fn render_armor(host: &dyn ClientHost, event: &mut RenderGuiPostEvent<'_>, heigh
         // Keep the item id as a fallback when a custom stack has no translated name.
         let name = if item_name.is_empty() { item_id } else { item_name };
         let available = (panel_width - 30.0).max(1.0);
-        let name = truncate_for_width(&event.draw, &name, available);
+        let name = truncate_for_width(&*event.draw, &name, available);
         event.draw.text(&name, [x + 24.0, row_y + 13.0], 0xFFCCCCCC, true);
         if !detail.is_empty() {
             let detail_width = event.draw.text_width(&detail);
@@ -172,7 +172,8 @@ fn render_target(host: &dyn ClientHost, event: &mut RenderGuiPostEvent<'_>, widt
         draw_heart(event, "full", [group_x, y + 27.0]);
         event.draw.text(&high_health_count, [group_x + 12.0, y + 28.0], WHITE, true);
         if !high_health_extra.is_empty() {
-            event.draw.text(&high_health_extra, [group_x + 12.0 + event.draw.text_width(&high_health_count), y + 28.0], GOLD, true);
+            let heart_count_width = event.draw.text_width(&high_health_count);
+            event.draw.text(&high_health_extra, [group_x + 12.0 + heart_count_width, y + 28.0], GOLD, true);
         }
         return;
     }
