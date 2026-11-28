@@ -3,11 +3,11 @@
 //! through its native HUD hook.
 
 use std::collections::HashMap;
-use std::sync::{Mutex, atomic::{AtomicBool, Ordering}};
+use std::sync::{LazyLock, Mutex, atomic::{AtomicBool, Ordering}};
 
 static FULLBRIGHT_ENABLED: AtomicBool = AtomicBool::new(false);
 
-static ENTITY_VITALS: Mutex<HashMap<u32, EntityVitals>> = Mutex::new(HashMap::new());
+static ENTITY_VITALS: LazyLock<Mutex<HashMap<u32, EntityVitals>>> =\n    LazyLock::new(|| Mutex::new(HashMap::new()));
 
 /// Replace the last client-frame snapshot of living entity health values.
 pub fn replace_entity_vitals(values: impl IntoIterator<Item = (u32, EntityVitals)>) {
