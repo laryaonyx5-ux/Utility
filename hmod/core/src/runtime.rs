@@ -2,9 +2,25 @@
 //! The Horizon adapter feeds these value types from the game and renders them
 //! through its native HUD hook.
 
-use std::sync::atomic::{AtomicBool, Ordering};
+use std::collections::HashMap;
+use std::sync::{Mutex, atomic::{AtomicBool, Ordering}};
 
 static FULLBRIGHT_ENABLED: AtomicBool = AtomicBool::new(false);
+
+static ENTITY_VITALS: Mutex<HashMap<u32, EntityVitals>> = Mutex::new(HashMap::new());
+
+/// Replace the last client-frame snapshot of living entity health values.
+pub fn replace_entity_vitals(values: impl IntoIterator<Item = (u32, EntityVitals)>) {
+    if let Ok(mut snapshot) = ENTITY_VITALS.lock() {
+        snapshot.clear();
+        snapshot.extend(values);
+    }
+}
+
+/// Read the latest client-frame health snapshot for a network entity id.
+pub fn entity_vitals(id: u32) -> Option<EntityVitals> {
+    ENTITY_VITALS.lock().ok()?.get(&id).copied()
+}
 
 /// Shared switch read by the native renderer mixin and written by the mod API.
 pub fn set_fullbright_enabled(enabled: bool) {
