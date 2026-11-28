@@ -1,0 +1,10 @@
+{
+  "setting.utilitymod.armor_hud": "HUD d’armure",
+  "setting.utilitymod.armor_hud.tooltip": "Affiche l’équipement et sa durabilité.",
+  "setting.utilitymod.entity_hud": "HUD d’entité",
+  "setting.utilitymod.entity_hud.tooltip": "Affiche le nom et les points de vie de l’entité visée.",
+  "setting.utilitymod.fullbright": "Fullbright",
+  "setting.utilitymod.fullbright.tooltip": "Active la luminosité maximale (si prise en charge par Horizon).",
+  "setting.utilitymod.fog": "Sans brouillard",
+  "setting.utilitymod.fog.tooltip": "Éloigne les limites de brouillard d’Horizon."
+}
