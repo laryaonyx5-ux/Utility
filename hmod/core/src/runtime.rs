@@ -1,6 +1,20 @@
 //! Behavior ported from Config.java, ZoomState.java and HudRenderer.java.
-//! The Starling adapter must feed these value types from the game and render
-//! them through its native HUD hook.
+//! The Horizon adapter feeds these value types from the game and renders them
+//! through its native HUD hook.
+
+use std::sync::atomic::{AtomicBool, Ordering};
+
+static FULLBRIGHT_ENABLED: AtomicBool = AtomicBool::new(false);
+
+/// Shared switch read by the native renderer mixin and written by the mod API.
+pub fn set_fullbright_enabled(enabled: bool) {
+    FULLBRIGHT_ENABLED.store(enabled, Ordering::Relaxed);
+}
+
+/// Current Utility fullbright switch for the native renderer.
+pub fn fullbright_enabled() -> bool {
+    FULLBRIGHT_ENABLED.load(Ordering::Relaxed)
+}
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub struct Config {
@@ -13,7 +27,7 @@ pub struct Config {
 impl Config {
     pub fn toggle_armor(&mut self) { self.armor_hud = !self.armor_hud; }
     pub fn toggle_entity(&mut self) { self.entity_hud = !self.entity_hud; }
-    pub fn toggle_fullbright(&mut self) { self.fullbright = !self.fullbright; }
+    pub fn toggle_fullbright(&mut self) { self.fullbright = !self.fullbright; set_fullbright_enabled(self.fullbright); }
     pub fn toggle_fog(&mut self) { self.no_fog = !self.no_fog; }
 }
 
