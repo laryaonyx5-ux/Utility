@@ -4,19 +4,27 @@ This branch is the current Horizon `.hmod` port. The old `.hnmod`/horizon-mixins
 
 ## Implemented in Rust
 
-- Current `horizon-mod-api` `Hooks` adapter registers J/K/L/N and C (zoom).
-- J/K/L/N toggle the original Armor HUD, Entity HUD, Fullbright and No Fog state and post chat feedback.
-- C uses Horizon's native zoom hook: hold-to-zoom, factor 3, instant transition, mouse turn scale 0.45.
-- No Fog now modifies Horizon's final fog distances through its native `render_fog` hook when enabled.
-- Portable core contains feature toggle state, held-zoom math, durability calculations, health/absorption heart calculations, armor/equipment and food presentation models, entity HUD presentation/range model, fog-distance transformation, and Fullbright safety-state resolution.
-- Regression tests cover the portable behavior.
-- CI has been changed to install Horizon's mod tooling, run `cargo horizon-mod check`, and build a validated `.hmod` instead of simply zipping the source. This SDK check is currently being worked through in CI.
+- The current Horizon `mod_api::Hooks` adapter registers the original J/K/L/N feature toggles and C for zoom.
+- J/K/L/N toggle Armor HUD, Entity HUD, Fullbright and No Fog, show chat feedback, and store their state in Horizon settings.
+- Armor HUD draws equipped armor/offhand, item durability, low-durability alerts, a durability bar, offhand item totals, and the total food count.
+- Entity HUD draws the target name, numeric health, vanilla heart sprites and absorption hearts.
+- A native frame helper snapshots mob health and selects the nearest mob on a 64-block view ray, rejecting targets hidden behind a block.
+- Fullbright is applied to Horizon's renderer each frame and Horizon's own brightness values are restored when Utility is disabled.
+- No Fog changes Horizon's final environmental, render-distance, sky and cloud fog values.
+- C is hold-to-zoom with the Java behavior: factor resets to 3 when zoom starts, the wheel changes the factor from 1 to 30, and the camera-turn scale is configurable.
+- The portable core contains toggle state, zoom math, durability and health calculations, and regression tests.
+
+## Build and verification
+
+- The portable Rust core tests pass in GitHub Actions.
+- CI is being updated to compile the native adapter against the pinned Horizon SDK and build the `.hmod` package.
+- The source package is not considered a tested native binary. The launcher must build it for the user's exact Horizon revision.
 
 ## Still not complete / not verified
 
-- Armor HUD and Entity HUD are not yet drawn in Horizon and live player inventory/target/entity data are not connected.
-- Fullbright is not yet applied to Horizon's actual world-lighting/lightmap pipeline.
-- Zoom wheel scaling beyond the fixed 3x and the original camera behavior are not wired; Horizon's native zoom hook currently supplies a fixed factor.
-- The native adapter has not yet passed `cargo horizon-mod check` against its pinned SDK, and no in-game test has been completed.
+- The native adapter and mixin helpers still need to pass the pinned SDK compile check.
+- The `.hmod` must be installed and tested in Horizon in-game; this has not been verified.
+- Targeting currently covers Horizon's native mob list; player and special multipart target behavior has not been verified.
+- The later Starling/mobile port has not started.
 
-Do not mark the port 100% complete until the missing HUD and lighting features are implemented, native compilation succeeds, and the mod is tested in-game. A source `.hmod` is not proof of a working mod.
+Do not mark the port 100% complete until native compilation succeeds, the packaged mod installs, and the main features are tested in Horizon in-game.
