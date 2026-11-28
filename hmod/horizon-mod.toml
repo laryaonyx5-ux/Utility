@@ -25,3 +25,14 @@ helper = "src/mixins/fullbright_frame.rs"
 bindings = [
   { name = "game", ty = "&mut crate::game::Game<'_>", value = "&mut *self" },
 ]
+
+
+# Capture live mob health from the client game state for the entity HUD.
+[[native.mixin]]
+id = "utilitymod_entity_vitals_frame"
+target = "horizon_client::game::Game<'_>::render_and_flip"
+kind = "HEAD"
+helper = "src/mixins/entity_vitals_frame.rs"
+bindings = [
+  { name = "game", ty = "&mut crate::game::Game<'_>", value = "&mut *self" },
+]
