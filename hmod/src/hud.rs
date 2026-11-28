@@ -38,10 +38,15 @@ fn render_armor(host: &dyn ClientHost, event: &mut RenderGuiPostEvent<'_>, heigh
     ];
 
     let inventory = player.inventory(host).unwrap_or_default();
-    let food_count: u32 = inventory.iter()
+    let main_food: u32 = inventory.iter()
         .filter(|stack| has_food_component(host, stack))
         .map(|stack| stack.count())
         .sum();
+    let offhand_food = living.equipment(host, EquipmentSlot::OffHand)
+        .filter(|stack| has_food_component(host, stack))
+        .map(|stack| stack.count())
+        .unwrap_or(0);
+    let food_count = main_food + offhand_food;
 
     let mut rows: Vec<(String, mod_api::ItemStack)> = Vec::new();
     for (slot, label) in slots {
