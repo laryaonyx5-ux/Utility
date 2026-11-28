@@ -39,7 +39,7 @@ fn render_armor(host: &dyn ClientHost, event: &mut RenderGuiPostEvent<'_>, heigh
 
     let inventory = player.inventory(host).unwrap_or_default();
     let food_count: u32 = inventory.iter()
-        .filter(|stack| host.items().item_default_component(stack.item(), "minecraft:food").is_some())
+        .filter(|stack| has_food_component(host, stack))
         .map(|stack| stack.count())
         .sum();
 
@@ -68,7 +68,7 @@ fn render_armor(host: &dyn ClientHost, event: &mut RenderGuiPostEvent<'_>, heigh
 
         let item_id = stack.item().id(host);
         let item_name = host.hover_name(stack);
-        let damage_max = host.items().max_damage(stack.item()).unwrap_or(0);
+        let damage_max = effective_max_damage(host, stack);
         let damage = stack.damage();
         let detail = if damage_max > 0 {
             let remaining = damage_max.saturating_sub(damage);
@@ -103,6 +103,44 @@ fn render_armor(host: &dyn ClientHost, event: &mut RenderGuiPostEvent<'_>, heigh
         let _ = event.draw.sprite("minecraft:hud/food_full", [0.0, 0.0, 9.0, 9.0], [x + 7.0, row_y + 4.0, 9.0, 9.0], None);
         event.draw.text(&format!("x{food_count}"), [x + 24.0, row_y + 4.0], WHITE, true);
     }
+}
+
+fn has_food_component(host: &dyn ClientHost, stack: &mod_api::ItemStack) -> bool {
+    if let Some(patch) = stack.components() {
+        let nbt = patch.as_nbt();
+        if nbt.contains_key("minecraft:food") {
+            return true;
+        }
+        if nbt.contains_key("!minecraft:food") {
+            return false;
+        }
+    }
+    host.items().item_default_component(stack.item(), "minecraft:food").is_some()
+}
+
+fn effective_max_damage(host: &dyn ClientHost, stack: &mod_api::ItemStack) -> u32 {
+    if let Some(patch) = stack.components() {
+        let nbt = patch.as_nbt();
+        if nbt.contains_key("!minecraft:max_damage") {
+            return 0;
+        }
+        if let Some(value) = nbt.get("minecraft:max_damage") {
+            return match value {
+                mod_api::Tag::Byte(v) => u32::try_from(*v).unwrap_or(0),
+                mod_api::Tag::Short(v) => u32::try_from(*v).unwrap_or(0),
+                mod_api::Tag::Int(v) => u32::try_from(*v).unwrap_or(0),
+                mod_api::Tag::Long(v) => u32::try_from(*v).unwrap_or(0),
+                _ => 0,
+            };
+        }
+        if nbt.contains_key("minecraft:unbreakable") {
+            return 0;
+        }
+    }
+    if host.items().item_default_component(stack.item(), "minecraft:unbreakable").is_some() {
+        return 0;
+    }
+    host.items().max_damage(stack.item()).unwrap_or(0)
 }
 
 fn truncate_for_width(draw: &dyn mod_api::DrawContext, text: &str, max_width: f32) -> String {
