@@ -6,7 +6,7 @@
 
 use mod_api::{
     self, ClientHost, ClientTickPostEvent, Hooks, KeyRegistration, Registrar,
-    RegistrationContext, RenderFogEvent, RenderGuiPostEvent, Text, Zoom, ZoomEvent,
+    RegistrationContext, RenderFogEvent, RenderGuiPostEvent, SettingChangedEvent, SettingSpec, Text, Zoom, ZoomEvent,
 };
 use std::sync::Mutex;
 
@@ -35,11 +35,35 @@ fn chat(host: &mut dyn ClientHost, label: &str, enabled: bool) {
 
 #[mod_api::horizon_mod]
 impl Hooks for Utility {
-    fn register(&self, registrar: &mut dyn Registrar, _cx: &RegistrationContext) {
+    fn register(&self, registrar: &mut dyn Registrar, cx: &RegistrationContext) {
         for (id, label, key) in BINDS {
             let mut mapping = KeyRegistration::new(id, key);
             mapping.label = format!("{ID}.key.{id}: {label}");
             registrar.register_key_mapping(mapping);
+        }
+
+        // These settings are stored by Horizon and survive game restarts.
+        for (id, _label, _) in BINDS.iter().filter(|(id, _, _)| *id != "zoom") {
+            let _ = registrar.register_setting(
+                SettingSpec::toggle(
+                    *id,
+                    format!("setting.utilitymod.{id}"),
+                    false,
+                )
+                .tooltip(format!("setting.utilitymod.{id}.tooltip")),
+            );
+            if let Ok(Some(value)) = cx.setting(ID, id) {
+                if let Ok(mut config) = self.config.lock() {
+                    let enabled = value == "true";
+                    match *id {
+                        "armor_hud" => config.armor_hud = enabled,
+                        "entity_hud" => config.entity_hud = enabled,
+                        "fullbright" => config.fullbright = enabled,
+                        "fog" => config.no_fog = enabled,
+                        _ => {}
+                    }
+                }
+            }
         }
     }
 
@@ -64,6 +88,22 @@ impl Hooks for Utility {
             event.fog.render_distance_end = 40_000_000.0;
             event.fog.sky_end = 40_000_000.0;
             event.fog.cloud_end = 40_000_000.0;
+        }
+    }
+
+    fn setting_changed(&self, host: &mut dyn ClientHost, event: &mut SettingChangedEvent<'_>) {
+        if event.mod_id != ID {
+            return;
+        }
+        let Some(enabled) = host.setting_bool(event.key) else { return };
+        if let Ok(mut config) = self.config.lock() {
+            match event.key {
+                "armor_hud" => config.armor_hud = enabled,
+                "entity_hud" => config.entity_hud = enabled,
+                "fullbright" => config.fullbright = enabled,
+                "fog" => config.no_fog = enabled,
+                _ => {}
+            }
         }
     }
 
@@ -110,6 +150,7 @@ impl Hooks for Utility {
                     _ => continue,
                 }
             };
+            host.set_setting(ID, id, if enabled { "true" } else { "false" });
             chat(host, label, enabled);
         }
     }
