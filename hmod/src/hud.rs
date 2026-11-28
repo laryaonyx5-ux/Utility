@@ -108,10 +108,17 @@ fn truncate_for_width(draw: &dyn mod_api::DrawContext, text: &str, max_width: f3
 
 fn render_target(host: &dyn ClientHost, event: &mut RenderGuiPostEvent<'_>, width: f32) {
     let Some(CrosshairTarget::Entity { entity, .. }) = host.crosshair_target() else { return };
-    let Some(living) = host.living(entity) else { return };
-    let Some(health) = living.health(host) else { return };
-    let Some(max_health) = living.max_health(host) else { return };
-    let absorption = living.absorption(host).unwrap_or(0.0).max(0.0);
+    let Some(vitals) = utilitymod::entity_vitals(entity.id()).or_else(|| {
+        let living = host.living(entity)?;
+        Some(EntityVitals::new(
+            living.health(host)?,
+            living.max_health(host)?,
+            living.absorption(host).unwrap_or(0.0),
+        ))
+    }) else { return };
+    let health = vitals.health;
+    let max_health = vitals.max_health;
+    let absorption = vitals.absorption.max(0.0);
     let name = entity.name(host).unwrap_or_else(|| "Entity".to_owned());
 
     let health_text = format!("{:.1} / {:.1} HP", health.max(0.0), max_health.max(0.0));
