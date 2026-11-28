@@ -4,7 +4,7 @@
 //! not patch or modify Java sources.
 
 use mod_api::{ClientHost, EquipmentSlot, RenderGuiPostEvent};
-use utilitymod::{EntityHud, EntityVitals};
+use utilitymod::EntityVitals;
 
 const PANEL: u32 = 0x78000000;
 const WHITE: u32 = 0xFFFFFFFF;
@@ -37,19 +37,26 @@ fn render_armor(host: &dyn ClientHost, event: &mut RenderGuiPostEvent<'_>, heigh
         (EquipmentSlot::OffHand, "Offhand"),
     ];
 
+    let inventory = player.inventory(host).unwrap_or_default();
+    let food_count: u32 = inventory.iter()
+        .filter(|stack| host.items().item_default_component(stack.item(), "minecraft:food").is_some())
+        .map(|stack| stack.count())
+        .sum();
+
     let mut rows: Vec<(String, mod_api::ItemStack)> = Vec::new();
     for (slot, label) in slots {
         if let Some(stack) = living.equipment(host, slot) {
             rows.push((label.to_owned(), stack));
         }
     }
-    if rows.is_empty() {
+    if rows.is_empty() && food_count == 0 {
         return;
     }
 
     let row_height = 22.0;
     let panel_width = 172.0;
-    let panel_height = rows.len() as f32 * row_height + 8.0;
+    let panel_rows = rows.len() + usize::from(food_count > 0);
+    let panel_height = panel_rows as f32 * row_height + 8.0;
     let x = 4.0;
     let y = (height * 0.5 - panel_height * 0.5).max(4.0);
     event.draw.fill([x, y, panel_width, panel_height], PANEL);
@@ -65,12 +72,17 @@ fn render_armor(host: &dyn ClientHost, event: &mut RenderGuiPostEvent<'_>, heigh
         let damage = stack.damage();
         let detail = if damage_max > 0 {
             let remaining = damage_max.saturating_sub(damage);
-            if remaining as f32 <= damage_max as f32 * 0.20 {
+            let ratio = remaining as f32 / damage_max as f32;
+            if ratio <= 0.20 {
                 event.draw.text("!!!", [x + 88.0, row_y + 4.0], ALERT, true);
             }
+            let bar_color = if ratio <= 0.20 { 0xFFFF2020 } else if ratio <= 0.50 { 0xFFFFC040 } else { 0xFF40C040 };
+            event.draw.fill([x + 6.0, row_y + 17.0, 13.0, 2.0], 0xFF000000);
+            event.draw.fill([x + 6.0, row_y + 17.0, (13.0 * ratio).round().clamp(0.0, 13.0), 2.0], bar_color);
             format!("{remaining}/{damage_max}")
-        } else if stack.count() > 1 {
-            format!("x{}", stack.count())
+        } else if label == "Offhand" || stack.count() > 1 {
+            let total: u32 = inventory.iter().filter(|item| item.same_item(stack)).map(|item| item.count()).sum::<u32>() + stack.count();
+            format!("x{total}")
         } else {
             String::new()
         };
@@ -85,6 +97,11 @@ fn render_armor(host: &dyn ClientHost, event: &mut RenderGuiPostEvent<'_>, heigh
             let detail_x = x + panel_width - detail_width - 6.0;
             event.draw.text(&detail, [detail_x, row_y + 4.0], WHITE, true);
         }
+    }
+    if food_count > 0 {
+        let row_y = y + 4.0 + rows.len() as f32 * row_height;
+        let _ = event.draw.sprite("minecraft:hud/food_full", [0.0, 0.0, 9.0, 9.0], [x + 7.0, row_y + 4.0, 9.0, 9.0], None);
+        event.draw.text(&format!("Food x{food_count}"), [x + 24.0, row_y + 4.0], WHITE, true);
     }
 }
 
@@ -125,7 +142,7 @@ fn render_target(host: &dyn ClientHost, event: &mut RenderGuiPostEvent<'_>, widt
     let health_text = format!("{:.1} / {:.1} HP", health.max(0.0), max_health.max(0.0));
     let name_width = event.draw.text_width(&name);
     let health_width = event.draw.text_width(&health_text);
-    let hearts = max_health <= 20.0;
+    let hearts = health <= 20.0;
     let heart_columns = if hearts {
         ((max_health.max(1.0) / 2.0).ceil() as usize).clamp(1, 10)
     } else {
