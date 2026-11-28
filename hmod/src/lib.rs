@@ -6,9 +6,11 @@
 
 use mod_api::{
     self, ClientHost, ClientTickPostEvent, Hooks, KeyRegistration, Registrar,
-    RegistrationContext, RenderFogEvent, Text, Zoom, ZoomEvent,
+    RegistrationContext, RenderFogEvent, RenderGuiPostEvent, Text, Zoom, ZoomEvent,
 };
 use std::sync::Mutex;
+
+mod hud;
 use utilitymod::Config;
 
 const ID: &str = "utilitymod";
@@ -63,6 +65,15 @@ impl Hooks for Utility {
             event.fog.sky_end = 40_000_000.0;
             event.fog.cloud_end = 40_000_000.0;
         }
+    }
+
+    fn render_gui_post(&self, host: &dyn ClientHost, event: &mut RenderGuiPostEvent<'_>) {
+        let (armor_enabled, entity_enabled) = self
+            .config
+            .lock()
+            .map(|config| (config.armor_hud, config.entity_hud))
+            .unwrap_or((false, false));
+        hud::render(host, event, armor_enabled, entity_enabled);
     }
 
     fn client_tick_post(&self, host: &mut dyn ClientHost, _event: &mut ClientTickPostEvent) {
