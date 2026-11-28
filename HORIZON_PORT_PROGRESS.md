@@ -17,8 +17,9 @@ This branch is the current Horizon `.hmod` port. The old `.hnmod`/horizon-mixins
 ## Build and verification
 
 - The portable Rust core tests pass in GitHub Actions.
-- CI is being updated to compile the native adapter against the pinned Horizon SDK and build the `.hmod` package.
-- The source package is not considered a tested native binary. The launcher must build it for the user's exact Horizon revision.
+- GitHub Actions passes the portable core tests, packages the `.hmod`, and validates its archive and native manifest.
+- Horizon's launcher compiles native code against the pinned game SDK; that launcher build has not been completed in this environment.
+- The source package is not a tested native binary. The launcher must build it for the user's exact Horizon revision.
 
 ## Still not complete / not verified
 
