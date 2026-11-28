@@ -3,7 +3,7 @@
 //! This uses only the public Horizon client drawing and entity APIs. It does
 //! not patch or modify Java sources.
 
-use mod_api::{ClientHost, CrosshairTarget, EquipmentSlot, RenderGuiPostEvent};
+use mod_api::{ClientHost, EquipmentSlot, RenderGuiPostEvent};
 use utilitymod::{EntityHud, EntityVitals};
 
 const PANEL: u32 = 0x78000000;
@@ -107,8 +107,9 @@ fn truncate_for_width(draw: &dyn mod_api::DrawContext, text: &str, max_width: f3
 }
 
 fn render_target(host: &dyn ClientHost, event: &mut RenderGuiPostEvent<'_>, width: f32) {
-    let Some(CrosshairTarget::Entity { entity, .. }) = host.crosshair_target() else { return };
-    let Some(vitals) = utilitymod::entity_vitals(entity.id()).or_else(|| {
+    let Some(target_id) = utilitymod::target_entity_id() else { return };
+    let Some(entity) = host.entity(target_id) else { return };
+    let Some(vitals) = utilitymod::entity_vitals(target_id).or_else(|| {
         let living = host.living(entity)?;
         Some(EntityVitals::new(
             living.health(host)?,
