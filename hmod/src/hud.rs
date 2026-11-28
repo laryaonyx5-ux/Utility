@@ -81,7 +81,9 @@ fn render_armor(host: &dyn ClientHost, event: &mut RenderGuiPostEvent<'_>, heigh
         let name = truncate_for_width(&event.draw, &name, available);
         event.draw.text(&name, [x + 24.0, row_y + 13.0], 0xFFCCCCCC, true);
         if !detail.is_empty() {
-            event.draw.text(&detail, [x + panel_width - event.draw.text_width(&detail) - 6.0, row_y + 4.0], WHITE, true);
+            let detail_width = event.draw.text_width(&detail);
+            let detail_x = x + panel_width - detail_width - 6.0;
+            event.draw.text(&detail, [detail_x, row_y + 4.0], WHITE, true);
         }
     }
 }
