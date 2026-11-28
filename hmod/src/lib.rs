@@ -6,7 +6,7 @@
 
 use mod_api::{
     self, ClientHost, ClientTickPostEvent, Hooks, KeyRegistration, Registrar,
-    RegistrationContext, RenderFogEvent, RenderGuiPostEvent, SettingChangedEvent, SettingSpec, Text, Zoom, ZoomEvent,
+    RegistrationContext, RenderFogEvent, RenderGuiPostEvent, SettingChangedEvent, SettingSpec, Text, Zoom, ZoomEvent, Flow, MouseScrollingEvent,
 };
 use std::sync::Mutex;
 
@@ -83,6 +83,19 @@ impl Hooks for Utility {
         let factor = host.setting_f64("zoom_factor").unwrap_or(3.0).clamp(1.0, 30.0) as f32;
         let turn = host.setting_f64("zoom_turn").unwrap_or(0.45).clamp(0.1, 1.0) as f32;
         Some(Zoom { factor, smooth: false, turn })
+    }
+
+    /// Wheel-adjust zoom while C is held, and prevent the wheel from changing hotbar slots.
+    fn mouse_scrolling(&self, host: &mut dyn ClientHost, event: &mut MouseScrollingEvent) -> Flow {
+        if !host.playing() || !host.is_down(ID, "zoom") || event.scroll[1] == 0.0 {
+            return Flow::Continue;
+        }
+        let current = host.setting_f64("zoom_factor").unwrap_or(3.0).clamp(1.0, 30.0);
+        let next = (current * 1.2_f64.powf(event.scroll[1])).clamp(1.0, 30.0);
+        if next.is_finite() {
+            host.set_setting(ID, "zoom_factor", &next.to_string());
+        }
+        Flow::Cancel
     }
 
     /// Expand the final fog distances when No Fog is enabled.
