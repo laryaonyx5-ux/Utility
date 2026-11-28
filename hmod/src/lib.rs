@@ -16,10 +16,10 @@ use utilitymod::{Config, Zoom as ZoomState};
 const ID: &str = "utilitymod";
 
 const BINDS: &[(&str, &str, &str)] = &[
-    ("armor_hud", "Armor HUD", "key.keyboard.j"),
-    ("entity_hud", "Entity HUD", "key.keyboard.k"),
+    ("armor_hud", "HUD d’armure", "key.keyboard.j"),
+    ("entity_hud", "HUD d’entité", "key.keyboard.k"),
     ("fullbright", "Fullbright", "key.keyboard.l"),
-    ("fog", "No Fog", "key.keyboard.n"),
+    ("fog", "Sans brouillard", "key.keyboard.n"),
     ("zoom", "Zoom", "key.keyboard.c"),
 ];
 
@@ -39,7 +39,7 @@ impl Hooks for Utility {
     fn register(&self, registrar: &mut dyn Registrar, cx: &RegistrationContext) {
         for (id, label, key) in BINDS {
             let mut mapping = KeyRegistration::new(id, key);
-            mapping.label = format!("{ID}.key.{id}: {label}");
+            mapping.label = format!("key.{ID}.{id}");
             registrar.register_key_mapping(mapping);
         }
 
