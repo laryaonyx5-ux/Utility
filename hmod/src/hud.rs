@@ -151,7 +151,12 @@ fn render_target(host: &dyn ClientHost, event: &mut RenderGuiPostEvent<'_>, widt
     let absorption_count = (absorption / 2.0).ceil() as usize;
     let columns = heart_columns.max(absorption_count.min(10)).clamp(1, 10);
     let heart_width = columns as f32 * 8.0 + 1.0;
-    let box_width = name_width.max(health_width).max(heart_width) + 12.0;
+    let high_health_count = format!("{} / {} cœurs", fmt_health(health.max(0.0) / 2.0), fmt_health(max_health.max(0.0) / 2.0));
+    let high_health_extra = if absorption > 0.0 { format!(" +{}", fmt_health(absorption / 2.0)) } else { String::new() };
+    let high_health_width = if hearts { 0.0 } else {
+        11.0 + event.draw.text_width(&high_health_count) + event.draw.text_width(&high_health_extra)
+    };
+    let box_width = name_width.max(health_width).max(heart_width).max(high_health_width) + 12.0;
     let health_rows = (heart_columns + 9) / 10;
     let absorption_rows = (absorption_count.min(30) + 9) / 10;
     let box_height = 8.0 + 11.0 + 11.0 + if hearts { (health_rows + absorption_rows) as f32 * 10.0 } else { 12.0 };
@@ -163,12 +168,11 @@ fn render_target(host: &dyn ClientHost, event: &mut RenderGuiPostEvent<'_>, widt
     event.draw.text(&health_text, [(width - health_width) * 0.5, y + 15.0], WHITE, true);
 
     if !hearts {
-        let heart_x = (width - 9.0) * 0.5 - 22.0;
-        draw_heart(event, "full", [heart_x, y + 27.0]);
-        let heart_count = format!("{} / {} cœurs", fmt_health(health.max(0.0) / 2.0), fmt_health(max_health.max(0.0) / 2.0));
-        event.draw.text(&heart_count, [heart_x + 12.0, y + 28.0], WHITE, true);
-        if absorption > 0.0 {
-            event.draw.text(&format!("+{} absorption", fmt_health(absorption / 2.0)), [heart_x + 12.0, y + 39.0], GOLD, true);
+        let group_x = (width - high_health_width) * 0.5;
+        draw_heart(event, "full", [group_x, y + 27.0]);
+        event.draw.text(&high_health_count, [group_x + 12.0, y + 28.0], WHITE, true);
+        if !high_health_extra.is_empty() {
+            event.draw.text(&high_health_extra, [group_x + 12.0 + event.draw.text_width(&high_health_count), y + 28.0], GOLD, true);
         }
         return;
     }
