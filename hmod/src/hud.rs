@@ -111,32 +111,78 @@ fn render_target(host: &dyn ClientHost, event: &mut RenderGuiPostEvent<'_>, widt
     let Some(living) = host.living(entity) else { return };
     let Some(health) = living.health(host) else { return };
     let Some(max_health) = living.max_health(host) else { return };
-    let absorption = living.absorption(host).unwrap_or(0.0);
+    let absorption = living.absorption(host).unwrap_or(0.0).max(0.0);
     let name = entity.name(host).unwrap_or_else(|| "Entity".to_owned());
 
-    let vitals = EntityVitals::new(health, max_health, absorption);
-    let hud = EntityHud {
-        entity_name: name.clone(),
-        distance_blocks: 0.0,
-        vitals,
-    };
-    let health_text = hud.health_text();
-    let hearts = hud.compact_hearts();
-    let extra = if absorption > 0.0 {
-        format!("  +{:.1} absorption", absorption)
+    let health_text = format!("{:.1} / {:.1} HP", health.max(0.0), max_health.max(0.0));
+    let name_width = event.draw.text_width(&name);
+    let health_width = event.draw.text_width(&health_text);
+    let hearts = max_health <= 20.0;
+    let heart_columns = if hearts {
+        ((max_health.max(1.0) / 2.0).ceil() as usize).clamp(1, 10)
     } else {
-        String::new()
+        1
     };
-
-    let lines = [name, health_text, hearts + &extra];
-    let line_height = 11.0;
-    let box_width = lines.iter().map(|line| event.draw.text_width(line)).fold(0.0_f32, f32::max) + 12.0;
-    let box_height = lines.len() as f32 * line_height + 8.0;
+    let absorption_count = (absorption / 2.0).ceil() as usize;
+    let columns = heart_columns.max(absorption_count.min(10)).clamp(1, 10);
+    let heart_width = columns as f32 * 8.0 + 1.0;
+    let box_width = name_width.max(health_width).max(heart_width) + 12.0;
+    let health_rows = (heart_columns + 9) / 10;
+    let absorption_rows = (absorption_count.min(30) + 9) / 10;
+    let box_height = 8.0 + 11.0 + 11.0 + if hearts { (health_rows + absorption_rows) as f32 * 10.0 } else { 12.0 };
     let x = (width - box_width) * 0.5;
     let y = 28.0;
     event.draw.fill([x, y, box_width, box_height], PANEL);
-    for (i, line) in lines.iter().enumerate() {
-        let text_x = (width - event.draw.text_width(line)) * 0.5;
-        event.draw.text(line, [text_x, y + 4.0 + i as f32 * line_height], if i == 2 && absorption > 0.0 { GOLD } else { WHITE }, true);
+
+    event.draw.text(&name, [(width - name_width) * 0.5, y + 4.0], WHITE, true);
+    event.draw.text(&health_text, [(width - health_width) * 0.5, y + 15.0], WHITE, true);
+
+    if !hearts {
+        let heart_x = (width - 9.0) * 0.5 - 22.0;
+        draw_heart(event, "full", [heart_x, y + 27.0]);
+        let heart_count = format!("{:.1} / {:.1} hearts", health.max(0.0) / 2.0, max_health.max(0.0) / 2.0);
+        event.draw.text(&heart_count, [heart_x + 12.0, y + 28.0], WHITE, true);
+        if absorption > 0.0 {
+            event.draw.text(&format!("+{:.1} absorption", absorption / 2.0), [heart_x + 12.0, y + 39.0], GOLD, true);
+        }
+        return;
+    }
+
+    let x0 = width * 0.5 - (columns as f32 * 8.0 + 1.0) * 0.5;
+    let hearts_y = y + 27.0;
+    for i in 0..heart_columns {
+        let at = [x0 + (i % 10) as f32 * 8.0, hearts_y + (i / 10) as f32 * 10.0];
+        draw_heart(event, "container", at);
+        if health >= 2.0 * i as f32 + 2.0 {
+            draw_heart(event, "full", at);
+        } else if health >= 2.0 * i as f32 + 1.0 {
+            draw_heart(event, "half", at);
+        }
+    }
+
+    for i in 0..absorption_count.min(30) {
+        let at = [
+            x0 + (i % 10) as f32 * 8.0,
+            hearts_y + (health_rows + i / 10) as f32 * 10.0,
+        ];
+        draw_heart(event, "container", at);
+        if absorption >= 2.0 * i as f32 + 2.0 {
+            draw_heart(event, "absorbing_full", at);
+        } else if absorption >= 2.0 * i as f32 + 1.0 {
+            draw_heart(event, "absorbing_half", at);
+        }
+    }
+}
+
+fn draw_heart(event: &mut RenderGuiPostEvent<'_>, kind: &str, at: [f32; 2]) {
+    let sprite = format!("minecraft:hud/heart/{kind}");
+    if !event.draw.sprite(&sprite, [0.0, 0.0, 9.0, 9.0], [at[0], at[1], 9.0, 9.0], None) {
+        let fallback = match kind {
+            "container" => "♡",
+            "half" | "absorbing_half" => "◐",
+            "absorbing_full" => "♥",
+            _ => "♥",
+        };
+        event.draw.text(fallback, at, if kind.starts_with("absorbing") { GOLD } else { WHITE }, true);
     }
 }
