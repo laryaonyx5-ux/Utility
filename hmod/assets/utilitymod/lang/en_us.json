@@ -1,0 +1,10 @@
+{
+  "setting.utilitymod.armor_hud": "Armor HUD",
+  "setting.utilitymod.armor_hud.tooltip": "Show equipped items and their durability.",
+  "setting.utilitymod.entity_hud": "Entity HUD",
+  "setting.utilitymod.entity_hud.tooltip": "Show the name and health of the targeted entity.",
+  "setting.utilitymod.fullbright": "Fullbright",
+  "setting.utilitymod.fullbright.tooltip": "Enable maximum brightness (when supported by Horizon).",
+  "setting.utilitymod.fog": "No Fog",
+  "setting.utilitymod.fog.tooltip": "Move Horizon's fog distances farther away."
+}
