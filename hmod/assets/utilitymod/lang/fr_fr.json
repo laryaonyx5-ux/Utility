@@ -6,5 +6,9 @@
   "setting.utilitymod.fullbright": "Fullbright",
   "setting.utilitymod.fullbright.tooltip": "Active la luminosité maximale (si prise en charge par Horizon).",
   "setting.utilitymod.fog": "Sans brouillard",
-  "setting.utilitymod.fog.tooltip": "Éloigne les limites de brouillard d’Horizon."
+  "setting.utilitymod.fog.tooltip": "Éloigne les limites de brouillard d’Horizon.",
+  "setting.utilitymod.zoom_factor": "Facteur de zoom",
+  "setting.utilitymod.zoom_factor.tooltip": "Grossissement du zoom tenu (1 à 30).",
+  "setting.utilitymod.zoom_turn": "Sensibilité de la caméra en zoom",
+  "setting.utilitymod.zoom_turn.tooltip": "Vitesse de rotation de la caméra pendant le zoom."
 }
