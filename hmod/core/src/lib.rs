@@ -8,7 +8,7 @@
 pub mod runtime;
 pub mod presentation;
 
-pub use runtime::{Config, EntityVitals, HudRow, Zoom, entity_vitals, fullbright_enabled, replace_entity_vitals, set_fullbright_enabled, set_target_entity_id, target_entity_id};
+pub use runtime::{Config, EntityVitals, HudRow, Zoom, entity_vitals, fullbright_enabled, replace_entity_vitals, set_fullbright_enabled, set_target_entity_id, target_entity_id, ENTITY_RANGE_BLOCKS};
 pub use presentation::{ArmorHud, EntityHud, FogDistances, resolve_fullbright};
 
 /// Native-mod identity used by the Starling compatibility mod list.
