@@ -6,5 +6,9 @@
   "setting.utilitymod.fullbright": "Fullbright",
   "setting.utilitymod.fullbright.tooltip": "Enable maximum brightness (when supported by Horizon).",
   "setting.utilitymod.fog": "No Fog",
-  "setting.utilitymod.fog.tooltip": "Move Horizon's fog distances farther away."
+  "setting.utilitymod.fog.tooltip": "Move Horizon's fog distances farther away.",
+  "setting.utilitymod.zoom_factor": "Zoom factor",
+  "setting.utilitymod.zoom_factor.tooltip": "Held zoom magnification (1 to 30).",
+  "setting.utilitymod.zoom_turn": "Zoom camera sensitivity",
+  "setting.utilitymod.zoom_turn.tooltip": "Camera turning speed while zoomed."
 }
