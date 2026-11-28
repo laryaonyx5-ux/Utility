@@ -10,5 +10,10 @@
   "setting.utilitymod.zoom_factor": "Zoom factor",
   "setting.utilitymod.zoom_factor.tooltip": "Held zoom magnification (1 to 30).",
   "setting.utilitymod.zoom_turn": "Zoom camera sensitivity",
-  "setting.utilitymod.zoom_turn.tooltip": "Camera turning speed while zoomed."
+  "setting.utilitymod.zoom_turn.tooltip": "Camera turning speed while zoomed.",
+  "key.utilitymod.armor_hud": "Armor HUD",
+  "key.utilitymod.entity_hud": "Entity HUD",
+  "key.utilitymod.fullbright": "Fullbright",
+  "key.utilitymod.zoom": "Zoom",
+  "key.utilitymod.fog": "No Fog"
 }
