@@ -65,14 +65,24 @@ impl Hooks for Utility {
                 }
             }
         }
+        let _ = registrar.register_setting(
+            SettingSpec::range("zoom_factor", "setting.utilitymod.zoom_factor", 1.0, 30.0, 0.1, 3.0)
+                .tooltip("setting.utilitymod.zoom_factor.tooltip"),
+        );
+        let _ = registrar.register_setting(
+            SettingSpec::range("zoom_turn", "setting.utilitymod.zoom_turn", 0.1, 1.0, 0.05, 0.45)
+                .tooltip("setting.utilitymod.zoom_turn.tooltip"),
+        );
     }
 
-    /// Horizon's native zoom hook: hold C, 3x zoom, instant transition, slower camera turning.
+    /// Horizon's native zoom hook: hold C; strength and camera sensitivity are configurable.
     fn zoom(&self, host: &dyn ClientHost, _event: &mut ZoomEvent) -> Option<Zoom> {
         if !host.playing() || !host.is_down(ID, "zoom") {
             return None;
         }
-        Some(Zoom { factor: 3.0, smooth: false, turn: 0.45 })
+        let factor = host.setting_f64("zoom_factor").unwrap_or(3.0).clamp(1.0, 30.0) as f32;
+        let turn = host.setting_f64("zoom_turn").unwrap_or(0.45).clamp(0.1, 1.0) as f32;
+        Some(Zoom { factor, smooth: false, turn })
     }
 
     /// Expand the final fog distances when No Fog is enabled.
