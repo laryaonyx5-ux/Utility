@@ -3,9 +3,23 @@
 //! through its native HUD hook.
 
 use std::collections::HashMap;
-use std::sync::{LazyLock, Mutex, atomic::{AtomicBool, Ordering}};
+use std::sync::{LazyLock, Mutex, atomic::{AtomicBool, AtomicU32, Ordering}};
 
 static FULLBRIGHT_ENABLED: AtomicBool = AtomicBool::new(false);
+static TARGET_ENTITY_ID: AtomicU32 = AtomicU32::new(u32::MAX);
+
+/// Set the client HUD's current 64-block entity target.
+pub fn set_target_entity_id(id: Option<u32>) {
+    TARGET_ENTITY_ID.store(id.unwrap_or(u32::MAX), Ordering::Relaxed);
+}
+
+/// The network id currently selected by Utility's native target ray.
+pub fn target_entity_id() -> Option<u32> {
+    match TARGET_ENTITY_ID.load(Ordering::Relaxed) {
+        u32::MAX => None,
+        id => Some(id),
+    }
+}
 
 static ENTITY_VITALS: LazyLock<Mutex<HashMap<u32, EntityVitals>>> =\n    LazyLock::new(|| Mutex::new(HashMap::new()));
 
