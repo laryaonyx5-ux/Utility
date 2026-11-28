@@ -53,16 +53,16 @@ fn render_armor(host: &dyn ClientHost, event: &mut RenderGuiPostEvent<'_>, heigh
         return;
     }
 
-    let row_height = 22.0;
+    let row_height = 24.0;
     let panel_width = 172.0;
     let panel_rows = rows.len() + usize::from(food_count > 0);
-    let panel_height = panel_rows as f32 * row_height + 8.0;
+    let panel_height = panel_rows as f32 * row_height + 12.0;
     let x = 4.0;
     let y = (height * 0.5 - panel_height * 0.5).max(4.0);
     event.draw.fill([x, y, panel_width, panel_height], PANEL);
 
     for (index, (label, stack)) in rows.iter().enumerate() {
-        let row_y = y + 4.0 + index as f32 * row_height;
+        let row_y = y + 8.0 + index as f32 * row_height;
         event.draw.item_stack(stack, [x + 4.0, row_y], 16.0);
         event.draw.text(label, [x + 24.0, row_y + 4.0], WHITE, true);
 
@@ -74,7 +74,7 @@ fn render_armor(host: &dyn ClientHost, event: &mut RenderGuiPostEvent<'_>, heigh
             let remaining = damage_max.saturating_sub(damage);
             let ratio = remaining as f32 / damage_max as f32;
             if ratio <= 0.20 {
-                event.draw.text("!!!", [x + 88.0, row_y + 4.0], ALERT, true);
+                event.draw.text("!!!", [x + 4.0, row_y - 8.0], ALERT, true);
             }
             let bar_color = if ratio <= 0.20 { 0xFFFF2020 } else if ratio <= 0.50 { 0xFFFFC040 } else { 0xFF40C040 };
             event.draw.fill([x + 6.0, row_y + 17.0, 13.0, 2.0], 0xFF000000);
@@ -99,7 +99,7 @@ fn render_armor(host: &dyn ClientHost, event: &mut RenderGuiPostEvent<'_>, heigh
         }
     }
     if food_count > 0 {
-        let row_y = y + 4.0 + rows.len() as f32 * row_height;
+        let row_y = y + 8.0 + rows.len() as f32 * row_height;
         let _ = event.draw.sprite("minecraft:hud/food_full", [0.0, 0.0, 9.0, 9.0], [x + 7.0, row_y + 4.0, 9.0, 9.0], None);
         event.draw.text(&format!("x{food_count}"), [x + 24.0, row_y + 4.0], WHITE, true);
     }
