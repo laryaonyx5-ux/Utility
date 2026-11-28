@@ -30,11 +30,11 @@ fn render_armor(host: &dyn ClientHost, event: &mut RenderGuiPostEvent<'_>, heigh
     let Some(living) = host.living(player.entity()) else { return };
 
     let slots = [
-        (EquipmentSlot::Head, "Head"),
-        (EquipmentSlot::Chest, "Chest"),
-        (EquipmentSlot::Legs, "Legs"),
-        (EquipmentSlot::Feet, "Feet"),
-        (EquipmentSlot::OffHand, "Offhand"),
+        (EquipmentSlot::Head, "Tête"),
+        (EquipmentSlot::Chest, "Plastron"),
+        (EquipmentSlot::Legs, "Jambes"),
+        (EquipmentSlot::Feet, "Bottes"),
+        (EquipmentSlot::OffHand, "Main secondaire"),
     ];
 
     let inventory = player.inventory(host).unwrap_or_default();
@@ -80,7 +80,7 @@ fn render_armor(host: &dyn ClientHost, event: &mut RenderGuiPostEvent<'_>, heigh
             event.draw.fill([x + 6.0, row_y + 17.0, 13.0, 2.0], 0xFF000000);
             event.draw.fill([x + 6.0, row_y + 17.0, (13.0 * ratio).round().clamp(0.0, 13.0), 2.0], bar_color);
             format!("{remaining}/{damage_max}")
-        } else if label == "Offhand" || stack.count() > 1 {
+        } else if label == "Main secondaire" || stack.count() > 1 {
             let total: u32 = inventory.iter().filter(|item| item.same_item(stack)).map(|item| item.count()).sum::<u32>() + stack.count();
             format!("x{total}")
         } else {
@@ -101,7 +101,7 @@ fn render_armor(host: &dyn ClientHost, event: &mut RenderGuiPostEvent<'_>, heigh
     if food_count > 0 {
         let row_y = y + 4.0 + rows.len() as f32 * row_height;
         let _ = event.draw.sprite("minecraft:hud/food_full", [0.0, 0.0, 9.0, 9.0], [x + 7.0, row_y + 4.0, 9.0, 9.0], None);
-        event.draw.text(&format!("Food x{food_count}"), [x + 24.0, row_y + 4.0], WHITE, true);
+        event.draw.text(&format!("x{food_count}"), [x + 24.0, row_y + 4.0], WHITE, true);
     }
 }
 
@@ -139,7 +139,7 @@ fn render_target(host: &dyn ClientHost, event: &mut RenderGuiPostEvent<'_>, widt
     let absorption = vitals.absorption.max(0.0);
     let name = entity.name(host).unwrap_or_else(|| "Entity".to_owned());
 
-    let health_text = format!("{:.1} / {:.1} HP", health.max(0.0), max_health.max(0.0));
+    let health_text = format!("{} / {} PV", fmt_health(health.max(0.0)), fmt_health(max_health.max(0.0)));
     let name_width = event.draw.text_width(&name);
     let health_width = event.draw.text_width(&health_text);
     let hearts = health <= 20.0;
@@ -165,10 +165,10 @@ fn render_target(host: &dyn ClientHost, event: &mut RenderGuiPostEvent<'_>, widt
     if !hearts {
         let heart_x = (width - 9.0) * 0.5 - 22.0;
         draw_heart(event, "full", [heart_x, y + 27.0]);
-        let heart_count = format!("{:.1} / {:.1} hearts", health.max(0.0) / 2.0, max_health.max(0.0) / 2.0);
+        let heart_count = format!("{} / {} cœurs", fmt_health(health.max(0.0) / 2.0), fmt_health(max_health.max(0.0) / 2.0));
         event.draw.text(&heart_count, [heart_x + 12.0, y + 28.0], WHITE, true);
         if absorption > 0.0 {
-            event.draw.text(&format!("+{:.1} absorption", absorption / 2.0), [heart_x + 12.0, y + 39.0], GOLD, true);
+            event.draw.text(&format!("+{} absorption", fmt_health(absorption / 2.0)), [heart_x + 12.0, y + 39.0], GOLD, true);
         }
         return;
     }
@@ -196,6 +196,14 @@ fn render_target(host: &dyn ClientHost, event: &mut RenderGuiPostEvent<'_>, widt
         } else if absorption >= 2.0 * i as f32 + 1.0 {
             draw_heart(event, "absorbing_half", at);
         }
+    }
+}
+
+fn fmt_health(value: f32) -> String {
+    if value.is_finite() && value.fract().abs() < 0.0001 {
+        format!("{}", value as i32)
+    } else {
+        format!("{value:.1}")
     }
 }
 
