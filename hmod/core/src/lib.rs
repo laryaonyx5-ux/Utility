@@ -1,9 +1,8 @@
-//! Utility HUD — Rust port core for Starling/Horizon.
+//! Utility HUD — portable Rust core for the Horizon native port.
  //!
- //! This crate ports the behavior/state calculations from the Fabric Java mod.
- //! Game-facing injection adapters live under `mixins/utilitymod`; they must
- //! be compiled against the exact Starling/Horizon source revision pinned in
- //! horizon-native.json.
+ //! This crate holds game-independent state and calculations. The native
+ //! Horizon adapter lives in `hmod/src` and is compiled against the exact
+ //! Horizon source revision pinned in `hmod/horizon-mod.toml`.
 
 pub mod runtime;
 pub mod presentation;
@@ -13,7 +12,7 @@ pub use presentation::{ArmorHud, EntityHud, FogDistances, resolve_fullbright};
 
 /// Native-mod identity used by the Starling compatibility mod list.
 pub const MOD_ID: &str = "utilitymod";
-pub const VERSION: &str = "1.1.0";
+pub const VERSION: &str = "1.1.1";
 
 #[cfg(test)]
 mod tests {
