@@ -11,7 +11,7 @@ use mod_api::{
 use std::sync::Mutex;
 
 mod hud;
-use utilitymod::Config;
+use utilitymod::{Config, Zoom as ZoomState};
 
 const ID: &str = "utilitymod";
 
@@ -26,6 +26,7 @@ const BINDS: &[(&str, &str, &str)] = &[
 #[derive(Default)]
 struct Utility {
     config: Mutex<Config>,
+    zoom: Mutex<ZoomState>,
 }
 
 fn chat(host: &mut dyn ClientHost, label: &str, enabled: bool) {
@@ -66,10 +67,6 @@ impl Hooks for Utility {
             }
         }
         let _ = registrar.register_setting(
-            SettingSpec::range("zoom_factor", "setting.utilitymod.zoom_factor", 1.0, 30.0, 0.1, 3.0)
-                .tooltip("setting.utilitymod.zoom_factor.tooltip"),
-        );
-        let _ = registrar.register_setting(
             SettingSpec::range("zoom_turn", "setting.utilitymod.zoom_turn", 0.1, 1.0, 0.05, 0.45)
                 .tooltip("setting.utilitymod.zoom_turn.tooltip"),
         );
@@ -80,7 +77,7 @@ impl Hooks for Utility {
         if !host.playing() || !host.is_down(ID, "zoom") {
             return None;
         }
-        let factor = host.setting_f64("zoom_factor").unwrap_or(3.0).clamp(1.0, 30.0) as f32;
+        let factor = self.zoom.lock().map(|zoom| zoom.factor as f32).unwrap_or(3.0);
         let turn = host.setting_f64("zoom_turn").unwrap_or(0.45).clamp(0.1, 1.0) as f32;
         Some(Zoom { factor, smooth: false, turn })
     }
@@ -90,10 +87,8 @@ impl Hooks for Utility {
         if !host.playing() || !host.is_down(ID, "zoom") || event.scroll[1] == 0.0 {
             return Flow::Continue;
         }
-        let current = host.setting_f64("zoom_factor").unwrap_or(3.0).clamp(1.0, 30.0);
-        let next = (current * 1.2_f64.powf(event.scroll[1])).clamp(1.0, 30.0);
-        if next.is_finite() {
-            host.set_setting(ID, "zoom_factor", &next.to_string());
+        if let Ok(mut zoom) = self.zoom.lock() {
+            zoom.scroll(event.scroll[1]);
         }
         Flow::Cancel
     }
@@ -142,6 +137,10 @@ impl Hooks for Utility {
     fn client_tick_post(&self, host: &mut dyn ClientHost, _event: &mut ClientTickPostEvent) {
         if !host.playing() {
             return;
+        }
+
+        if let Ok(mut zoom) = self.zoom.lock() {
+            zoom.update(host.is_down(ID, "zoom"));
         }
 
         for (id, label, _) in BINDS {
