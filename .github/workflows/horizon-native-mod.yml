@@ -1,4 +1,4 @@
-name: Horizon native mod package
+name: Horizon native mod
 
 on:
   workflow_dispatch:
@@ -13,13 +13,33 @@ on:
       - ".github/workflows/horizon-native-mod.yml"
 
 jobs:
-  package:
+  source-package:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
       - name: Test portable Utility core
         run: cargo test --manifest-path hmod/core/Cargo.toml
+      - name: Package installable Horizon source mod
+        working-directory: hmod
+        run: |
+          zip -X -r "$GITHUB_WORKSPACE/utilitymod-1.1.1.hmod" horizon-mod.toml Cargo.toml src core assets -x "target/*" "core/target/*"
+          if [ -f Cargo.lock ]; then
+            zip -X "$GITHUB_WORKSPACE/utilitymod-1.1.1.hmod" Cargo.lock
+          fi
+      - name: Upload installable .hmod source package
+        uses: actions/upload-artifact@v4
+        with:
+          name: utilitymod-horizon-hmod
+          path: utilitymod-1.1.1.hmod
+          if-no-files-found: error
+
+  native-check:
+    needs: source-package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
       - name: Cache Horizon mod tooling
         uses: actions/cache@v4
         with:
@@ -33,15 +53,15 @@ jobs:
           if ! command -v cargo-horizon-mod >/dev/null 2>&1; then
             cargo install --locked --git https://github.com/arismoko/horizon --rev 0a875da91dbb0fdcb7ba8c42c11341aa229af51a cargo-horizon-mod
           fi
-      - name: Fetch pinned SDK and compile-check native adapter
+      - name: Compile-check native adapter and mixins
         working-directory: hmod
         run: cargo horizon-mod check
-      - name: Build validated .hmod package
+      - name: Build Horizon mod
         working-directory: hmod
         run: cargo horizon-mod build
-      - name: Upload validated .hmod package
+      - name: Upload Horizon tool build
         uses: actions/upload-artifact@v4
         with:
-          name: utilitymod-horizon-hmod
+          name: utilitymod-horizon-native-build
           path: hmod/target/horizon-mod/utilitymod.hmod
           if-no-files-found: error
