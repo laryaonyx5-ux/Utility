@@ -10,5 +10,10 @@
   "setting.utilitymod.zoom_factor": "Facteur de zoom",
   "setting.utilitymod.zoom_factor.tooltip": "Grossissement du zoom tenu (1 à 30).",
   "setting.utilitymod.zoom_turn": "Sensibilité de la caméra en zoom",
-  "setting.utilitymod.zoom_turn.tooltip": "Vitesse de rotation de la caméra pendant le zoom."
+  "setting.utilitymod.zoom_turn.tooltip": "Vitesse de rotation de la caméra pendant le zoom.",
+  "key.utilitymod.armor_hud": "HUD d’armure",
+  "key.utilitymod.entity_hud": "HUD d’entité",
+  "key.utilitymod.fullbright": "Fullbright",
+  "key.utilitymod.zoom": "Zoom",
+  "key.utilitymod.fog": "Sans brouillard"
 }
