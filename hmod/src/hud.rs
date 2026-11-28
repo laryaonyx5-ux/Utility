@@ -174,6 +174,7 @@ fn render_target(host: &dyn ClientHost, event: &mut RenderGuiPostEvent<'_>, widt
     }) else { return };
     let health = vitals.health;
     let max_health = vitals.max_health;
+    if health <= 0.0 || max_health <= 0.0 { return; }
     let absorption = vitals.absorption.max(0.0);
     let name = entity.name(host).unwrap_or_else(|| "Entity".to_owned());
 
@@ -207,6 +208,7 @@ fn render_target(host: &dyn ClientHost, event: &mut RenderGuiPostEvent<'_>, widt
 
     if !hearts {
         let group_x = (width - high_health_width) * 0.5;
+        draw_heart(event, "container", [group_x, y + 27.0]);
         draw_heart(event, "full", [group_x, y + 27.0]);
         event.draw.text(&high_health_count, [group_x + 12.0, y + 28.0], WHITE, true);
         if !high_health_extra.is_empty() {
