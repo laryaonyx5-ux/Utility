@@ -58,7 +58,7 @@ impl Hooks for Utility {
                     match *id {
                         "armor_hud" => config.armor_hud = enabled,
                         "entity_hud" => config.entity_hud = enabled,
-                        "fullbright" => config.fullbright = enabled,
+                        "fullbright" => { config.fullbright = enabled; utilitymod::set_fullbright_enabled(enabled); },
                         "fog" => config.no_fog = enabled,
                         _ => {}
                     }
@@ -110,7 +110,7 @@ impl Hooks for Utility {
             match event.key {
                 "armor_hud" => config.armor_hud = enabled,
                 "entity_hud" => config.entity_hud = enabled,
-                "fullbright" => config.fullbright = enabled,
+                "fullbright" => { config.fullbright = enabled; utilitymod::set_fullbright_enabled(enabled); },
                 "fog" => config.no_fog = enabled,
                 _ => {}
             }
