@@ -1,4 +1,4 @@
-name: Horizon native mod
+name: Horizon native mod source package
 
 on:
   workflow_dispatch:
@@ -27,40 +27,41 @@ jobs:
           if [ -f Cargo.lock ]; then
             zip -X "$GITHUB_WORKSPACE/utilitymod-1.1.1.hmod" Cargo.lock
           fi
+      - name: Validate .hmod archive and native manifest
+        run: |
+          python - <<'PY'
+          import tomllib
+          import zipfile
+          from pathlib import Path
+
+          package = Path("utilitymod-1.1.1.hmod")
+          with zipfile.ZipFile(package) as archive:
+              assert archive.testzip() is None, "corrupt zip entry"
+              names = set(archive.namelist())
+              required = {
+                  "horizon-mod.toml",
+                  "Cargo.toml",
+                  "src/lib.rs",
+                  "src/hud.rs",
+                  "src/mixins/fullbright_frame.rs",
+                  "src/mixins/entity_vitals_frame.rs",
+                  "core/Cargo.toml",
+                  "core/src/lib.rs",
+                  "core/src/runtime.rs",
+                  "assets/utilitymod/lang/fr_fr.json",
+              }
+              missing = required - names
+              assert not missing, f"missing package files: {sorted(missing)}"
+              assert not any("/target/" in name or name.startswith("target/") for name in names), "build output leaked into package"
+              manifest = tomllib.loads(archive.read("horizon-mod.toml").decode())
+              assert manifest["id"] == "utilitymod"
+              assert manifest["api"] == "0.2"
+              assert len(manifest["native"]["mixin"]) == 2
+          print(f"Validated {package} ({package.stat().st_size} bytes)")
+          PY
       - name: Upload installable .hmod source package
         uses: actions/upload-artifact@v4
         with:
           name: utilitymod-horizon-hmod
           path: utilitymod-1.1.1.hmod
-          if-no-files-found: error
-
-  native-check:
-    needs: source-package
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
-      - name: Cache Horizon mod tooling
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cargo/bin/cargo-horizon-mod
-            ~/.cargo/registry
-            ~/.cargo/git
-          key: horizon-mod-tool-${{ runner.os }}-0a875da91dbb0fdcb7ba8c42c11341aa229af51a
-      - name: Install Horizon mod tooling
-        env:
-          CARGO_NET_GIT_FETCH_WITH_CLI: true
-        run: cargo install --locked --git https://github.com/arismoko/horizon --rev 0a875da91dbb0fdcb7ba8c42c11341aa229af51a cargo-horizon-mod
-      - name: Compile-check native adapter and mixins
-        working-directory: hmod
-        run: cargo horizon-mod check
-      - name: Build Horizon mod
-        working-directory: hmod
-        run: cargo horizon-mod build
-      - name: Upload Horizon tool build
-        uses: actions/upload-artifact@v4
-        with:
-          name: utilitymod-horizon-native-build
-          path: hmod/target/horizon-mod/utilitymod.hmod
           if-no-files-found: error
