@@ -20,6 +20,15 @@ mod tests {
     use super::runtime::*;
 
     #[test]
+    fn native_entity_vitals_snapshot_replaces_old_entities() {
+        replace_entity_vitals([(42, EntityVitals::new(7.0, 20.0, 2.0))]);
+        assert_eq!(entity_vitals(42), Some(EntityVitals::new(7.0, 20.0, 2.0)));
+        assert_eq!(entity_vitals(43), None);
+        replace_entity_vitals([]);
+        assert_eq!(entity_vitals(42), None);
+    }
+
+    #[test]
     fn toggles_persist_as_config_values() {
         let mut config = Config::default();
         config.toggle_armor();
