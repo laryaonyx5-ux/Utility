@@ -21,7 +21,8 @@ pub fn target_entity_id() -> Option<u32> {
     }
 }
 
-static ENTITY_VITALS: LazyLock<Mutex<HashMap<u32, EntityVitals>>> =\n    LazyLock::new(|| Mutex::new(HashMap::new()));
+static ENTITY_VITALS: LazyLock<Mutex<HashMap<u32, EntityVitals>>> =
+    LazyLock::new(|| Mutex::new(HashMap::new()));
 
 /// Replace the last client-frame snapshot of living entity health values.
 pub fn replace_entity_vitals(values: impl IntoIterator<Item = (u32, EntityVitals)>) {
